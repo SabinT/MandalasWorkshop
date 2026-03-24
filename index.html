@@ -30,7 +30,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            max-height: 30vh;
+            max-height: 20vh;
             background: #1e1e1e;
             color: #f8f8f8;
             font-family: Consolas, "Courier New", monospace;
@@ -64,7 +64,7 @@
         #error-panel-header button:hover { background: #444; }
         #error-list {
             overflow-y: auto;
-            max-height: calc(30vh - 36px); /* panel max minus header */
+            max-height: calc(20vh - 36px); /* panel max minus header */
         }
         .error-entry {
             border-bottom: 1px solid #333;
@@ -104,13 +104,16 @@
             padding: 6px 8px;
             background: #161616;
             border-radius: 4px;
-            white-space: pre-wrap;
-            word-break: break-word;
             color: #ccc;
             font-size: 12px;
             max-height: 200px;
             overflow-y: auto;
         }
+        .error-detail .frame { margin: 2px 0; }
+        .error-detail .frame-fn   { color: #dcdcaa; }  /* yellow – function */
+        .error-detail .frame-file { color: #9cdcfe; }  /* blue – file name */
+        .error-detail .frame-line { color: #b5cea8; }  /* green – line number */
+        .error-detail .frame-text { color: #999; }     /* gray – plain text */
         .error-entry.open .error-detail { display: block; }
     </style>
 </head>
@@ -121,7 +124,6 @@
             <span id="error-count">0 errors</span>
             <span>
                 <button id="error-hide-btn">Hide</button>
-                <button id="error-clear-btn">Clear</button>
             </span>
         </div>
         <div id="error-list"></div>
@@ -133,7 +135,6 @@
         var panel    = document.getElementById("error-panel");
         var list     = document.getElementById("error-list");
         var counter  = document.getElementById("error-count");
-        var clearBtn = document.getElementById("error-clear-btn");
         var hideBtn  = document.getElementById("error-hide-btn");
         var count    = 0;
 
@@ -141,6 +142,50 @@
             var d = document.createElement("div");
             d.appendChild(document.createTextNode(str));
             return d.innerHTML;
+        }
+
+        /** Remove p5 library frames and format stack into readable HTML. */
+        function formatStack(stack) {
+            if (!stack) return "";
+            var lines = stack.split("\n").filter(function (line) {
+                return !/p5\.min/i.test(line);
+            });
+            var html = "";
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+                // Firefox: funcName@http://…/file.js:line:col
+                var ff = line.match(/^(.+?)@.*\/([\w.\-]+\.js):(\d+)(?::(\d+))?/);
+                // Chrome:  at funcName (http://…/file.js:line:col)
+                var ch = !ff && line.match(/^at\s+(.+?)\s+\(.*\/([\w.\-]+\.js):(\d+)(?::(\d+))?\)/);
+                // Chrome anonymous: at http://…/file.js:line:col
+                var ca = !ff && !ch && line.match(/^at\s+.*\/([\w.\-]+\.js):(\d+)(?::(\d+))?/);
+                var m = ff || ch;
+                if (m) {
+                    var fn   = escapeHtml(m[1]);
+                    var file = escapeHtml(m[2]);
+                    var ln   = m[3] + (m[4] ? ":" + m[4] : "");
+                    html += '<div class="frame">' +
+                        '<span class="frame-text">Function </span>' +
+                        '<span class="frame-fn">' + fn + '</span>' +
+                        '<span class="frame-text"> in </span>' +
+                        '<span class="frame-file">' + file + '</span>' +
+                        '<span class="frame-text">, Line </span>' +
+                        '<span class="frame-line">' + ln + '</span>' +
+                        '</div>';
+                } else if (ca) {
+                    var file2 = escapeHtml(ca[1]);
+                    var ln2   = ca[2] + (ca[3] ? ":" + ca[3] : "");
+                    html += '<div class="frame">' +
+                        '<span class="frame-file">' + file2 + '</span>' +
+                        '<span class="frame-text">, Line </span>' +
+                        '<span class="frame-line">' + ln2 + '</span>' +
+                        '</div>';
+                } else {
+                    html += '<div class="frame"><span class="frame-text">' + escapeHtml(line) + '</span></div>';
+                }
+            }
+            return html;
         }
 
         function addError(summary, location, detail) {
@@ -158,7 +203,7 @@
                     (location ? '<span class="error-location">' + escapeHtml(location) + '</span>' : '') +
                 '</div>';
             var detailHtml =
-                '<div class="error-detail">' + escapeHtml(detail) + '</div>';
+                '<div class="error-detail">' + formatStack(detail) + '</div>';
 
             entry.innerHTML = summaryHtml + detailHtml;
             entry.addEventListener("click", function () {
@@ -230,19 +275,16 @@
                 stack = frames.slice(2).join("\n");
             }
             var detail = parts.join("\n");
-            if (stack) detail += "\n\nStack trace:\n" + stack;
+            // Only append stack trace if it has non-p5 frames
+            var filteredStack = stack.split("\n").filter(function (line) {
+                return line.trim() && !/p5\.min/i.test(line);
+            }).join("\n");
+            if (filteredStack) detail += "\n\nStack trace:\n" + filteredStack;
             addError(parts[0] || "console.error", loc, detail);
         };
 
         hideBtn.addEventListener("click", function (e) {
             e.stopPropagation();
-            panel.style.display = "none";
-        });
-
-        clearBtn.addEventListener("click", function (e) {
-            e.stopPropagation();
-            count = 0;
-            list.innerHTML = "";
             panel.style.display = "none";
         });
     })();

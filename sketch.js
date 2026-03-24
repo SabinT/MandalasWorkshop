@@ -14,15 +14,6 @@
 function setup() {
     createCanvas(1000, 1000);
     angleMode(RADIANS);
-
-    // ── TEST: 10 fake errors for testing the error panel ───────
-    for (var i = 1; i <= 10; i++) {
-        try {
-            throw new Error("Test error #" + i + " — something went wrong here");
-        } catch (err) {
-            console.error(err.message, "\n" + err.stack);
-        }
-    }
 }
 
 function draw() {
