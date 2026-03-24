@@ -17,22 +17,27 @@ simple normalized "easy space" coordinate system (−1 to 1).
 
 ```
 MandalasWorkshop/
-├── index.html           Main entry point. Loads p5.js (CDN), utility libs,
-│                        and sketch.js. Centers the canvas with Flexbox.
+├── index.html           Main entry point. Loads p5.js, utility libs,
+│                        sketch.js, and an in-page error console.
 ├── sketch.js            Student's working file. Contains setup(), draw(),
 │                        an example motif (motifLeaf), and a TODO motif
 │                        (motifCustom) with /** change this code **/ markers.
-├── utils/
+├── library/
 │   ├── math.js          Pure JS math helpers (no p5 dependency):
 │   │                      vec2(x,y), v2Add, v2Sub, v2Scale, v2Dot,
 │   │                      v2Length, v2Normalize, v2Lerp,
 │   │                      polarToCartesian, cartesianToPolar, remap
-│   └── mandala.js       Ring / polar-mapping logic (requires p5.js globals):
-│                          ring({ shape, n, r1, r2 })
-│                          mLine, mBezier, mCircle  — motif drawing commands
-│                          drawPolarGrid(n, r1, r2) — debug grid
-│                          mapToRing, drawCommandsInRing,
-│                          captureMotif, drawMappedCircle (internals)
+│   ├── curves.js        Parametric curve definitions (depends on math.js,
+│   │                      no p5 dependency):
+│   │                      LineCurve, BezierCurve, CircleCurve
+│   │                      Each exposes evaluate(t)→vec2, divisions, closed
+│   ├── mandala.js       Ring / polar-mapping logic (requires p5.js globals):
+│   │                      ring({ shape, n, r1, r2 })
+│   │                      mLine, mBezier, mCircle  — motif drawing commands
+│   │                      drawPolarGrid(n, r1, r2) — debug grid
+│   │                      mapToRing, drawCommandsInRing,
+│   │                      captureMotif, drawMappedCircle (internals)
+│   └── p5.min-1.11.11.js  p5.js library (local, minified).
 ├── .vscode/
 │   └── extensions.json  Recommends the "Live Server" extension (ritwickdey).
 ├── agents.md            This file.
@@ -86,18 +91,18 @@ p5.js vectors via `.x` / `.y` property access.
 
 - Add more motif functions in `sketch.js` and call `ring()` with different
   `n`, `r1`, `r2` values to build up concentric rings.
-- Add new drawing primitives to `utils/mandala.js` (e.g., `mArc`, `mRect`)
+- Add new drawing primitives to `library/mandala.js` (e.g., `mArc`, `mRect`)
   following the `_commands.push(...)` pattern.
-- Add more math utilities to `utils/math.js` — it has no p5 dependency so
+- Add more math utilities to `library/math.js` — it has no p5 dependency so
   it can be unit-tested independently.
 
 ---
 
 ## Dependencies
 
-| Library | Version | How loaded |
-|---------|---------|------------|
-| p5.js   | 1.9.4   | CDN `<script>` in `index.html` |
+| Library | Version  | How loaded |
+|---------|----------|------------|
+| p5.js   | 2.3.2    | Local `<script>` in `index.html` (`library/p5.min.2.3.2.js`) |
 
 No build step, no npm, no bundler — plain JS files loaded in order by the
 browser.
