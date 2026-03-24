@@ -6,20 +6,12 @@
 //   x ∈ [-1, 1]  →  angular position within one ring segment
 //   y ∈ [-1, 1]  →  radial position: -1 = inner radius, +1 = outer radius
 //
-// All mXxx() drawing functions record commands that are later
-// replayed by ring() into polar space.
-//
-// Internally each command is a parametric curve with an evaluate(t)
-// function, sampled at a configurable number of divisions so that
-// all shapes bend correctly in polar space.
+// All mXxx() drawing functions record parametric curve objects
+// (LineCurve, BezierCurve, CircleCurve from curves.js) that are
+// later replayed by ring() into polar space.
 // ============================================================
 
-/** Default number of divisions (line segments) used to sample each curve type. */
-const LINE_DIVISIONS    = 8;
-const BEZIER_DIVISIONS  = 32;
-const CIRCLE_DIVISIONS  = 32;
-
-/** @type {Array<object>} Captured drawing commands for the current motif. */
+/** @type {Array<LineCurve|BezierCurve|CircleCurve>} Captured curves for the current motif. */
 let _commands = [];
 
 // ------------------------------------------------------------
@@ -31,7 +23,7 @@ let _commands = [];
  * x ∈ [-1,1], y ∈ [-1,1]
  */
 function mLine(x1, y1, x2, y2) {
-    _commands.push({ type: "line", x1, y1, x2, y2, divisions: LINE_DIVISIONS });
+    _commands.push(new LineCurve(x1, y1, x2, y2));
 }
 
 /**
@@ -39,7 +31,7 @@ function mLine(x1, y1, x2, y2) {
  * The circle is approximated with vertices so it deforms correctly in polar space.
  */
 function mCircle(x, y, r) {
-    _commands.push({ type: "circle", x, y, r, divisions: CIRCLE_DIVISIONS });
+    _commands.push(new CircleCurve(x, y, r));
 }
 
 /**
@@ -47,37 +39,7 @@ function mCircle(x, y, r) {
  * Arguments match p5.js bezier(): anchor1, control1, control2, anchor2
  */
 function mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
-    _commands.push({ type: "bezier", x1, y1, cx1, cy1, cx2, cy2, x2, y2, divisions: BEZIER_DIVISIONS });
-}
-
-// ------------------------------------------------------------
-// Internal parametric evaluator
-// ------------------------------------------------------------
-
-/**
- * Evaluate a captured command at parameter t ∈ [0, 1] and return
- * the corresponding motif-space point as a vec2.
- *
- * @param {object} cmd  A command object from _commands.
- * @param {number} t    Curve parameter in [0, 1].
- * @returns {{ x: number, y: number }}
- */
-function _evaluateCommand(cmd, t) {
-    if (cmd.type === "line") {
-        return vec2(
-            cmd.x1 + t * (cmd.x2 - cmd.x1),
-            cmd.y1 + t * (cmd.y2 - cmd.y1)
-        );
-    } else if (cmd.type === "bezier") {
-        const u = 1 - t;
-        return vec2(
-            u*u*u * cmd.x1  + 3*u*u*t * cmd.cx1 + 3*u*t*t * cmd.cx2 + t*t*t * cmd.x2,
-            u*u*u * cmd.y1  + 3*u*u*t * cmd.cy1 + 3*u*t*t * cmd.cy2 + t*t*t * cmd.y2
-        );
-    } else if (cmd.type === "circle") {
-        const a = t * TWO_PI;
-        return vec2(cmd.x + cos(a) * cmd.r, cmd.y + sin(a) * cmd.r);
-    }
+    _commands.push(new BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2));
 }
 
 // ------------------------------------------------------------
@@ -136,41 +98,34 @@ function mapToRing(x, y, aCenter, aStep, r1, r2) {
 }
 
 /**
- * Replay all captured commands into a single ring segment.
+ * Replay all captured curves into a single ring segment.
+ * Each curve is sampled at cmd.divisions steps via cmd.evaluate(t).
+ * Closed curves (circles) are drawn with beginShape/endShape so they
+ * correctly respect the active fill.  Open curves (lines, beziers) are
+ * drawn as connected line() segments so they behave like stroke-only paths.
  */
 function drawCommandsInRing(commands, aCenter, aStep, r1, r2) {
     for (const cmd of commands) {
-        if (cmd.type === "line") {
-            const p1 = mapToRing(cmd.x1, cmd.y1, aCenter, aStep, r1, r2);
-            const p2 = mapToRing(cmd.x2, cmd.y2, aCenter, aStep, r1, r2);
-            line(p1.x, p1.y, p2.x, p2.y);
-        } else if (cmd.type === "circle") {
-            drawMappedCircle(cmd.x, cmd.y, cmd.r, aCenter, aStep, r1, r2);
-        } else if (cmd.type === "bezier") {
-            const p1 = mapToRing(cmd.x1, cmd.y1, aCenter, aStep, r1, r2);
-            const c1 = mapToRing(cmd.cx1, cmd.cy1, aCenter, aStep, r1, r2);
-            const c2 = mapToRing(cmd.cx2, cmd.cy2, aCenter, aStep, r1, r2);
-            const p2 = mapToRing(cmd.x2, cmd.y2, aCenter, aStep, r1, r2);
-            bezier(p1.x, p1.y, c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
+        if (cmd.closed) {
+            beginShape();
+            for (let i = 0; i <= cmd.divisions; i++) {
+                const p      = cmd.evaluate(i / cmd.divisions);
+                const mapped = mapToRing(p.x, p.y, aCenter, aStep, r1, r2);
+                vertex(mapped.x, mapped.y);
+            }
+            endShape(CLOSE);
+        } else {
+            let prev = null;
+            for (let i = 0; i <= cmd.divisions; i++) {
+                const p      = cmd.evaluate(i / cmd.divisions);
+                const mapped = mapToRing(p.x, p.y, aCenter, aStep, r1, r2);
+                if (prev !== null) {
+                    line(prev.x, prev.y, mapped.x, mapped.y);
+                }
+                prev = mapped;
+            }
         }
     }
-}
-
-/**
- * Approximate a circle defined in motif space as a polygon so it bends
- * correctly into polar space.
- */
-function drawMappedCircle(x, y, r, aCenter, aStep, r1, r2) {
-    beginShape();
-    const steps = 48;
-    for (let i = 0; i <= steps; i++) {
-        const a = map(i, 0, steps, 0, TWO_PI);
-        const px = x + cos(a) * r;
-        const py = y + sin(a) * r;
-        const p = mapToRing(px, py, aCenter, aStep, r1, r2);
-        vertex(p.x, p.y);
-    }
-    endShape();
 }
 
 // ------------------------------------------------------------
