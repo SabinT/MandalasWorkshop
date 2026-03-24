@@ -8,7 +8,16 @@
 //
 // All mXxx() drawing functions record commands that are later
 // replayed by ring() into polar space.
+//
+// Internally each command is a parametric curve with an evaluate(t)
+// function, sampled at a configurable number of divisions so that
+// all shapes bend correctly in polar space.
 // ============================================================
+
+/** Default number of divisions (line segments) used to sample each curve type. */
+const LINE_DIVISIONS    = 8;
+const BEZIER_DIVISIONS  = 32;
+const CIRCLE_DIVISIONS  = 32;
 
 /** @type {Array<object>} Captured drawing commands for the current motif. */
 let _commands = [];
@@ -22,7 +31,7 @@ let _commands = [];
  * x ∈ [-1,1], y ∈ [-1,1]
  */
 function mLine(x1, y1, x2, y2) {
-    _commands.push({ type: "line", x1, y1, x2, y2 });
+    _commands.push({ type: "line", x1, y1, x2, y2, divisions: LINE_DIVISIONS });
 }
 
 /**
@@ -30,7 +39,7 @@ function mLine(x1, y1, x2, y2) {
  * The circle is approximated with vertices so it deforms correctly in polar space.
  */
 function mCircle(x, y, r) {
-    _commands.push({ type: "circle", x, y, r });
+    _commands.push({ type: "circle", x, y, r, divisions: CIRCLE_DIVISIONS });
 }
 
 /**
@@ -38,7 +47,37 @@ function mCircle(x, y, r) {
  * Arguments match p5.js bezier(): anchor1, control1, control2, anchor2
  */
 function mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
-    _commands.push({ type: "bezier", x1, y1, cx1, cy1, cx2, cy2, x2, y2 });
+    _commands.push({ type: "bezier", x1, y1, cx1, cy1, cx2, cy2, x2, y2, divisions: BEZIER_DIVISIONS });
+}
+
+// ------------------------------------------------------------
+// Internal parametric evaluator
+// ------------------------------------------------------------
+
+/**
+ * Evaluate a captured command at parameter t ∈ [0, 1] and return
+ * the corresponding motif-space point as a vec2.
+ *
+ * @param {object} cmd  A command object from _commands.
+ * @param {number} t    Curve parameter in [0, 1].
+ * @returns {{ x: number, y: number }}
+ */
+function _evaluateCommand(cmd, t) {
+    if (cmd.type === "line") {
+        return vec2(
+            cmd.x1 + t * (cmd.x2 - cmd.x1),
+            cmd.y1 + t * (cmd.y2 - cmd.y1)
+        );
+    } else if (cmd.type === "bezier") {
+        const u = 1 - t;
+        return vec2(
+            u*u*u * cmd.x1  + 3*u*u*t * cmd.cx1 + 3*u*t*t * cmd.cx2 + t*t*t * cmd.x2,
+            u*u*u * cmd.y1  + 3*u*u*t * cmd.cy1 + 3*u*t*t * cmd.cy2 + t*t*t * cmd.y2
+        );
+    } else if (cmd.type === "circle") {
+        const a = t * TWO_PI;
+        return vec2(cmd.x + cos(a) * cmd.r, cmd.y + sin(a) * cmd.r);
+    }
 }
 
 // ------------------------------------------------------------
