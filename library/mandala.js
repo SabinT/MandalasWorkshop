@@ -11,7 +11,7 @@
 // later replayed by ring() into polar space.
 // ============================================================
 
-/** @type {Array<LineCurve|BezierCurve|CircleCurve>} Captured curves for the current motif. */
+/** @type {Array<LineCurve|BezierCurve|CircleCurve|PolyCurve|ArcCurve|EllipseCurve|CatmullRomCurve>} Captured curves for the current motif. */
 let _commands = [];
 
 // ------------------------------------------------------------
@@ -40,6 +40,93 @@ function mCircle(x, y, r) {
  */
 function mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
     _commands.push(new BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2));
+}
+
+/**
+ * Draw a closed triangle in motif space.
+ * Fill is respected because the shape is closed.
+ *
+ * @param {number} x1  Vertex 1 x
+ * @param {number} y1  Vertex 1 y
+ * @param {number} x2  Vertex 2 x
+ * @param {number} y2  Vertex 2 y
+ * @param {number} x3  Vertex 3 x
+ * @param {number} y3  Vertex 3 y
+ */
+function mTriangle(x1, y1, x2, y2, x3, y3) {
+    _commands.push(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3)], true));
+}
+
+/**
+ * Draw a closed quadrilateral in motif space.
+ * Vertices should be specified in order (e.g. clockwise or counter-clockwise).
+ * Fill is respected because the shape is closed.
+ *
+ * @param {number} x1  Vertex 1 x
+ * @param {number} y1  Vertex 1 y
+ * @param {number} x2  Vertex 2 x
+ * @param {number} y2  Vertex 2 y
+ * @param {number} x3  Vertex 3 x
+ * @param {number} y3  Vertex 3 y
+ * @param {number} x4  Vertex 4 x
+ * @param {number} y4  Vertex 4 y
+ */
+function mQuad(x1, y1, x2, y2, x3, y3, x4, y4) {
+    _commands.push(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3), vec2(x4, y4)], true));
+}
+
+/**
+ * Draw a closed polygon in motif space from an array of vec2 points.
+ * Fill is respected because the shape is closed.
+ *
+ * @param {Array<{x:number,y:number}>} points  Vertices in motif space.
+ */
+function mShape(points) {
+    _commands.push(new PolyCurve(points, true));
+}
+
+/**
+ * Draw an open polyline in motif space from an array of vec2 points (stroke only).
+ *
+ * @param {Array<{x:number,y:number}>} points  Vertices in motif space.
+ */
+function mPath(points) {
+    _commands.push(new PolyCurve(points, false));
+}
+
+/**
+ * Draw a circular arc in motif space (stroke only).
+ *
+ * @param {number} cx          Centre x in motif space.
+ * @param {number} cy          Centre y in motif space.
+ * @param {number} r           Radius in motif space.
+ * @param {number} startAngle  Start angle in radians.
+ * @param {number} endAngle    End angle in radians.
+ */
+function mArc(cx, cy, r, startAngle, endAngle) {
+    _commands.push(new ArcCurve(cx, cy, r, startAngle, endAngle));
+}
+
+/**
+ * Draw a closed ellipse in motif space.
+ * Fill is respected because the shape is closed.
+ *
+ * @param {number} cx  Centre x in motif space.
+ * @param {number} cy  Centre y in motif space.
+ * @param {number} rx  Horizontal radius.
+ * @param {number} ry  Vertical radius.
+ */
+function mEllipse(cx, cy, rx, ry) {
+    _commands.push(new EllipseCurve(cx, cy, rx, ry));
+}
+
+/**
+ * Draw a smooth Catmull-Rom spline through a list of vec2 points (stroke only).
+ *
+ * @param {Array<{x:number,y:number}>} points  Control points in motif space.
+ */
+function mCurve(points) {
+    _commands.push(new CatmullRomCurve(points));
 }
 
 // ------------------------------------------------------------
