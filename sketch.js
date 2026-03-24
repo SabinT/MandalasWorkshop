@@ -21,7 +21,7 @@ function draw() {
     translate(width / 2, height / 2);
 
     // Faint grid to visualize the ring segments
-    drawPolarGrid(12, 80, 160);
+    drawPolarGrid(12, 0, 500);
 
     stroke(0);
     noFill();
