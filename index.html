@@ -25,29 +25,27 @@
 
         /* ── Console error overlay ─────────────────────────── */
         #error-panel {
-            display: none;
+            display: none;  /* toggled to flex by JS */
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            max-height: 40vh;
-            overflow-y: auto;
+            max-height: 30vh;
             background: #1e1e1e;
             color: #f8f8f8;
             font-family: Consolas, "Courier New", monospace;
             font-size: 13px;
             z-index: 9999;
             border-top: 3px solid #e74c3c;
+            flex-direction: column;
         }
         #error-panel-header {
-            position: sticky;
-            top: 0;
+            flex-shrink: 0;
             background: #2d2d2d;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 6px 12px;
-            cursor: pointer;
             user-select: none;
         }
         #error-panel-header span {
@@ -64,6 +62,10 @@
             font-size: 12px;
         }
         #error-panel-header button:hover { background: #444; }
+        #error-list {
+            overflow-y: auto;
+            max-height: calc(30vh - 36px); /* panel max minus header */
+        }
         .error-entry {
             border-bottom: 1px solid #333;
             padding: 8px 12px;
@@ -71,14 +73,34 @@
         }
         .error-entry:hover { background: #2a2a2a; }
         .error-summary {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .error-arrow {
+            flex-shrink: 0;
+            font-size: 10px;
+            color: #999;
+            transition: transform 0.15s;
+            display: inline-block;
+            width: 12px;
+        }
+        .error-entry.open .error-arrow { transform: rotate(90deg); }
+        .error-msg {
             color: #e74c3c;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        .error-location {
+            flex-shrink: 0;
+            color: #888;
+            font-size: 12px;
+            white-space: nowrap;
+        }
         .error-detail {
             display: none;
-            margin-top: 6px;
+            margin: 6px 0 0 18px;
             padding: 6px 8px;
             background: #161616;
             border-radius: 4px;
@@ -113,7 +135,6 @@
         var counter  = document.getElementById("error-count");
         var clearBtn = document.getElementById("error-clear-btn");
         var hideBtn  = document.getElementById("error-hide-btn");
-        var MAX_VISIBLE = 5;
         var count    = 0;
 
         function escapeHtml(str) {
@@ -122,47 +143,63 @@
             return d.innerHTML;
         }
 
-        /** Trim visible entries so only the last MAX_VISIBLE are shown. */
-        function trimEntries() {
-            while (list.children.length > MAX_VISIBLE) {
-                list.removeChild(list.firstChild);
-            }
-        }
-
-        /** Check if a filename path ends with sketch.js */
-        function isSketchFile(filename) {
-            return filename && /sketch\.js$/i.test(filename);
-        }
-
-        function addError(summary, detail) {
+        function addError(summary, location, detail) {
             count++;
-            panel.style.display = "block";
+            panel.style.display = "flex";
             counter.textContent = count + (count === 1 ? " error" : " errors");
 
             var entry = document.createElement("div");
             entry.className = "error-entry";
-            entry.innerHTML =
-                '<div class="error-summary">' + escapeHtml(summary) + '</div>' +
-                '<div class="error-detail">'  + escapeHtml(detail)  + '</div>';
+
+            var summaryHtml =
+                '<div class="error-summary">' +
+                    '<span class="error-arrow">&#9654;</span>' +
+                    '<span class="error-msg">' + escapeHtml(summary) + '</span>' +
+                    (location ? '<span class="error-location">' + escapeHtml(location) + '</span>' : '') +
+                '</div>';
+            var detailHtml =
+                '<div class="error-detail">' + escapeHtml(detail) + '</div>';
+
+            entry.innerHTML = summaryHtml + detailHtml;
             entry.addEventListener("click", function () {
                 entry.classList.toggle("open");
             });
             list.appendChild(entry);
-            trimEntries();
-            panel.scrollTop = panel.scrollHeight;
+            list.scrollTop = list.scrollHeight;
+        }
+
+        /** Extract a short filename:line location from the first frame of a stack string. */
+        function locationFromStack(stack) {
+            if (!stack) return "";
+            var lines = stack.split("\n");
+            // Walk frames top-to-bottom; prefer user files, skip library/internal frames
+            var fallback = "";
+            for (var i = 0; i < lines.length; i++) {
+                var m = lines[i].match(/([\w.\-]+\.js):(\d+)(?::(\d+))?/);
+                if (!m) continue;
+                var file = m[1];
+                var loc  = file + ":" + m[2] + (m[3] ? ":" + m[3] : "");
+                // Skip p5 library and the error-panel's own inline script
+                if (/^p5/i.test(file) || /^index\.html$/i.test(file)) {
+                    if (!fallback) fallback = loc;
+                    continue;
+                }
+                return loc;  // first non-library frame wins
+            }
+            return fallback;
         }
 
         // Catch runtime errors
         window.addEventListener("error", function (e) {
             var msg   = e.message || "Unknown error";
-            var where = (e.filename || "") + (e.lineno ? ":" + e.lineno : "")
-                        + (e.colno ? ":" + e.colno : "");
             var stack = (e.error && e.error.stack) ? e.error.stack : "";
-            // Append line info to summary when the error is in sketch.js
-            if (isSketchFile(e.filename)) {
-                msg += "  (sketch.js line " + e.lineno + (e.colno ? ":" + e.colno : "") + ")";
+            // Prefer the stack trace for location (skips p5 wrapper frames)
+            var loc = locationFromStack(stack);
+            if (!loc && e.filename && e.lineno) {
+                var fname = e.filename.replace(/^.*\//, "");
+                loc = fname + ":" + e.lineno + (e.colno ? ":" + e.colno : "");
             }
-            addError(msg, where + "\n" + stack);
+            addError(msg, loc, stack);
         });
 
         // Catch unhandled promise rejections
@@ -170,7 +207,8 @@
             var reason = e.reason;
             var msg    = (reason && reason.message) ? reason.message : String(reason);
             var stack  = (reason && reason.stack)    ? reason.stack   : "";
-            addError("Unhandled Promise: " + msg, stack);
+            var loc    = locationFromStack(stack);
+            addError("Unhandled Promise: " + msg, loc, stack);
         });
 
         // Intercept console.error
@@ -180,7 +218,20 @@
             var parts = Array.prototype.map.call(arguments, function (a) {
                 return typeof a === "object" ? JSON.stringify(a, null, 2) : String(a);
             });
-            addError(parts[0] || "console.error", parts.join("\n"));
+            // Capture a real stack trace for the call-site
+            var stack = "";
+            var loc   = "";
+            try { throw new Error(); } catch (ex) {
+                var fullStack = ex.stack || "";
+                // Extract location from full stack (skips internal frames automatically)
+                loc = locationFromStack(fullStack);
+                // For display, remove the wrapper's own frames
+                var frames = fullStack.split("\n");
+                stack = frames.slice(2).join("\n");
+            }
+            var detail = parts.join("\n");
+            if (stack) detail += "\n\nStack trace:\n" + stack;
+            addError(parts[0] || "console.error", loc, detail);
         };
 
         hideBtn.addEventListener("click", function (e) {
