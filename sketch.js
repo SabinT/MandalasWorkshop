@@ -26,6 +26,8 @@ function draw() {
     stroke(0);
     noFill();
 
+    stroke("red");
+    fill("cyan");
     // ── Example motif ──────────────────────────────────────────
     ring({
         shape: motifLeaf,
