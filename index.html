@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mandalas Workshop</title>
+    <style>
+        /* Center the canvas in the browser window */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas {
+            display: block;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ── Console error overlay ─────────────────────────── */
+        #error-panel {
+            display: none;  /* toggled to flex by JS */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 20vh;
+            background: #1e1e1e;
+            color: #f8f8f8;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            z-index: 9999;
+            border-top: 3px solid #e74c3c;
+            flex-direction: column;
+        }
+        #error-panel-header {
+            flex-shrink: 0;
+            background: #2d2d2d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 12px;
+            user-select: none;
+        }
+        #error-panel-header span {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        #error-panel-header button {
+            background: none;
+            border: 1px solid #888;
+            color: #ccc;
+            border-radius: 4px;
+            padding: 2px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        #error-panel-header button:hover { background: #444; }
+        #error-list {
+            overflow-y: auto;
+            max-height: calc(20vh - 36px); /* panel max minus header */
+        }
+        .error-entry {
+            border-bottom: 1px solid #333;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .error-entry:hover { background: #2a2a2a; }
+        .error-summary {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .error-arrow {
+            flex-shrink: 0;
+            font-size: 10px;
+            color: #999;
+            transition: transform 0.15s;
+            display: inline-block;
+            width: 12px;
+        }
+        .error-entry.open .error-arrow { transform: rotate(90deg); }
+        .error-msg {
+            color: #e74c3c;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .error-location {
+            flex-shrink: 0;
+            color: #888;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .error-detail {
+            display: none;
+            margin: 6px 0 0 18px;
+            padding: 6px 8px;
+            background: #161616;
+            border-radius: 4px;
+            color: #ccc;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .error-detail .frame { margin: 2px 0; }
+        .error-detail .frame-fn   { color: #dcdcaa; }  /* yellow – function */
+        .error-detail .frame-file { color: #9cdcfe; }  /* blue – file name */
+        .error-detail .frame-line { color: #b5cea8; }  /* green – line number */
+        .error-detail .frame-text { color: #999; }     /* gray – plain text */
+        .error-entry.open .error-detail { display: block; }
+    </style>
+</head>
+<body>
+    <!-- On-page error console (hidden until an error occurs) -->
+    <div id="error-panel">
+        <div id="error-panel-header">
+            <span id="error-count">0 errors</span>
+            <span>
+                <button id="error-hide-btn">Hide</button>
+            </span>
+        </div>
+        <div id="error-list"></div>
+    </div>
+
+    <script>
+    // ── Capture console errors and display them on-page ───────
+    (function () {
+        var panel    = document.getElementById("error-panel");
+        var list     = document.getElementById("error-list");
+        var counter  = document.getElementById("error-count");
+        var hideBtn  = document.getElementById("error-hide-btn");
+        var count    = 0;
+
+        function escapeHtml(str) {
+            var d = document.createElement("div");
+            d.appendChild(document.createTextNode(str));
+            return d.innerHTML;
+        }
+
+        /** Remove p5 library frames and format stack into readable HTML. */
+        function formatStack(stack) {
+            if (!stack) return "";
+            var lines = stack.split("\n").filter(function (line) {
+                return !/p5\.min/i.test(line);
+            });
+            var html = "";
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+                // Firefox: funcName@http://…/file.js:line:col
+                var ff = line.match(/^(.+?)@.*\/([\w.\-]+\.js):(\d+)(?::(\d+))?/);
+                // Chrome:  at funcName (http://…/file.js:line:col)
+                var ch = !ff && line.match(/^at\s+(.+?)\s+\(.*\/([\w.\-]+\.js):(\d+)(?::(\d+))?\)/);
+                // Chrome anonymous: at http://…/file.js:line:col
+                var ca = !ff && !ch && line.match(/^at\s+.*\/([\w.\-]+\.js):(\d+)(?::(\d+))?/);
+                var m = ff || ch;
+                if (m) {
+                    var fn   = escapeHtml(m[1]);
+                    var file = escapeHtml(m[2]);
+                    var ln   = m[3] + (m[4] ? ":" + m[4] : "");
+                    html += '<div class="frame">' +
+                        '<span class="frame-text">Function </span>' +
+                        '<span class="frame-fn">' + fn + '</span>' +
+                        '<span class="frame-text"> in </span>' +
+                        '<span class="frame-file">' + file + '</span>' +
+                        '<span class="frame-text">, Line </span>' +
+                        '<span class="frame-line">' + ln + '</span>' +
+                        '</div>';
+                } else if (ca) {
+                    var file2 = escapeHtml(ca[1]);
+                    var ln2   = ca[2] + (ca[3] ? ":" + ca[3] : "");
+                    html += '<div class="frame">' +
+                        '<span class="frame-file">' + file2 + '</span>' +
+                        '<span class="frame-text">, Line </span>' +
+                        '<span class="frame-line">' + ln2 + '</span>' +
+                        '</div>';
+                } else {
+                    html += '<div class="frame"><span class="frame-text">' + escapeHtml(line) + '</span></div>';
+                }
+            }
+            return html;
+        }
+
+        function addError(summary, location, detail) {
+            count++;
+            panel.style.display = "flex";
+            counter.textContent = count + (count === 1 ? " error" : " errors");
+
+            var entry = document.createElement("div");
+            entry.className = "error-entry";
+
+            var summaryHtml =
+                '<div class="error-summary">' +
+                    '<span class="error-arrow">&#9654;</span>' +
+                    '<span class="error-msg">' + escapeHtml(summary) + '</span>' +
+                    (location ? '<span class="error-location">' + escapeHtml(location) + '</span>' : '') +
+                '</div>';
+            var detailHtml =
+                '<div class="error-detail">' + formatStack(detail) + '</div>';
+
+            entry.innerHTML = summaryHtml + detailHtml;
+            entry.addEventListener("click", function () {
+                entry.classList.toggle("open");
+            });
+            list.appendChild(entry);
+            list.scrollTop = list.scrollHeight;
+        }
+
+        /** Extract a short filename:line location from the first frame of a stack string. */
+        function locationFromStack(stack) {
+            if (!stack) return "";
+            var lines = stack.split("\n");
+            // Walk frames top-to-bottom; prefer user files, skip library/internal frames
+            var fallback = "";
+            for (var i = 0; i < lines.length; i++) {
+                var m = lines[i].match(/([\w.\-]+\.js):(\d+)(?::(\d+))?/);
+                if (!m) continue;
+                var file = m[1];
+                var loc  = file + ":" + m[2] + (m[3] ? ":" + m[3] : "");
+                // Skip p5 library and the error-panel's own inline script
+                if (/^p5/i.test(file) || /^index\.html$/i.test(file)) {
+                    if (!fallback) fallback = loc;
+                    continue;
+                }
+                return loc;  // first non-library frame wins
+            }
+            return fallback;
+        }
+
+        // Catch runtime errors
+        window.addEventListener("error", function (e) {
+            var msg   = e.message || "Unknown error";
+            var stack = (e.error && e.error.stack) ? e.error.stack : "";
+            // Prefer the stack trace for location (skips p5 wrapper frames)
+            var loc = locationFromStack(stack);
+            if (!loc && e.filename && e.lineno) {
+                var fname = e.filename.replace(/^.*\//, "");
+                loc = fname + ":" + e.lineno + (e.colno ? ":" + e.colno : "");
+            }
+            addError(msg, loc, stack);
+        });
+
+        // Catch unhandled promise rejections
+        window.addEventListener("unhandledrejection", function (e) {
+            var reason = e.reason;
+            var msg    = (reason && reason.message) ? reason.message : String(reason);
+            var stack  = (reason && reason.stack)    ? reason.stack   : "";
+            var loc    = locationFromStack(stack);
+            addError("Unhandled Promise: " + msg, loc, stack);
+        });
+
+        // Intercept console.error
+        var origError = console.error;
+        console.error = function () {
+            origError.apply(console, arguments);
+            var parts = Array.prototype.map.call(arguments, function (a) {
+                return typeof a === "object" ? JSON.stringify(a, null, 2) : String(a);
+            });
+            // Capture a real stack trace for the call-site
+            var stack = "";
+            var loc   = "";
+            try { throw new Error(); } catch (ex) {
+                var fullStack = ex.stack || "";
+                // Extract location from full stack (skips internal frames automatically)
+                loc = locationFromStack(fullStack);
+                // For display, remove the wrapper's own frames
+                var frames = fullStack.split("\n");
+                stack = frames.slice(2).join("\n");
+            }
+            var detail = parts.join("\n");
+            // Only append stack trace if it has non-p5 frames
+            var filteredStack = stack.split("\n").filter(function (line) {
+                return line.trim() && !/p5\.min/i.test(line);
+            }).join("\n");
+            if (filteredStack) detail += "\n\nStack trace:\n" + filteredStack;
+            addError(parts[0] || "console.error", loc, detail);
+        };
+
+        hideBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            panel.style.display = "none";
+        });
+    })();
+    </script>
+
+    <!-- p5.js from CDN -->
+    <script src="library/p5.min-1.11.11.js"></script>
+
+    <!-- Utility libraries (order matters: math first, then mandala) -->
+    <script src="library/math.js"></script>
+    <script src="library/mandala.js"></script>
+
+    <!-- Your sketch -->
+    <script src="sketch.js"></script>
+</body>
+</html>
