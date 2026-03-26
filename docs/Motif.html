@@ -342,18 +342,18 @@
       </p>
 
       <ul class="cmd-list">
-        <li><a href="#mLine">mLine(x1, y1, x2, y2)</a></li>
-        <li><a href="#mBezier">mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2)</a></li>
-        <li><a href="#mCircle">mCircle(x, y, r)</a></li>
+        <li><a href="#mLine">mLine(x1, y1, x2, y2 [, divisions])</a></li>
+        <li><a href="#mBezier">mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2 [, divisions])</a></li>
+        <li><a href="#mCircle">mCircle(x, y, r [, divisions])</a></li>
         <li><a href="#mDot">mDot(x, y, r)</a></li>
-        <li><a href="#mEllipse">mEllipse(cx, cy, rx, ry)</a></li>
-        <li><a href="#mArc">mArc(cx, cy, r, startAngle, endAngle)</a></li>
-        <li><a href="#mTriangle">mTriangle(x1, y1, x2, y2, x3, y3)</a></li>
-        <li><a href="#mQuad">mQuad(x1, y1, x2, y2, x3, y3, x4, y4)</a></li>
-        <li><a href="#mShape">mShape(points)</a></li>
-        <li><a href="#mPath">mPath(points)</a></li>
-        <li><a href="#mCurve">mCurve(points)</a></li>
-        <li><a href="#mBox">mBox(x, y, w, h)</a></li>
+        <li><a href="#mEllipse">mEllipse(cx, cy, rx, ry [, divisions])</a></li>
+        <li><a href="#mArc">mArc(cx, cy, r, startAngle, endAngle [, divisions])</a></li>
+        <li><a href="#mTriangle">mTriangle(x1, y1, x2, y2, x3, y3 [, divisions])</a></li>
+        <li><a href="#mQuad">mQuad(x1, y1, x2, y2, x3, y3, x4, y4 [, divisions])</a></li>
+        <li><a href="#mShape">mShape(points [, divisions])</a></li>
+        <li><a href="#mPath">mPath(points [, divisions])</a></li>
+        <li><a href="#mCurve">mCurve(points [, divisions])</a></li>
+        <li><a href="#mBox">mBox(x, y, w, h [, divisions])</a></li>
         <li><a href="#ring">ring({ shape, n, r1, r2, offset, gapDegrees })</a></li>
         <li><a href="#setMotifSize">setMotifSize(size)</a></li>
       </ul>
@@ -367,12 +367,13 @@
         <span class="card-title">mLine — Straight Line</span>
       </div>
       <p>Draws a straight line between two points in motif space (stroke only).</p>
-      <code class="fn-sig">mLine(x1, y1, x2, y2)</code>
+      <code class="fn-sig">mLine(x1, y1, x2, y2 [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td class="param-name">x1, y1</td><td class="param-type">number</td><td>Start point in motif space.</td></tr>
           <tr><td class="param-name">x2, y2</td><td class="param-type">number</td><td>End point in motif space.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments used to approximate the shape in ring space. Pass <code>1</code> to get a single straight (unwarped) segment instead of a smoothly curved one.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -392,7 +393,7 @@
         <span class="card-title">mBezier — Cubic Bézier Curve</span>
       </div>
       <p>Draws a cubic Bézier curve in motif space (stroke only). Arguments match p5.js's <code>bezier()</code> order: anchor 1, control 1, control 2, anchor 2.</p>
-      <code class="fn-sig">mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2)</code>
+      <code class="fn-sig">mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2 [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
@@ -400,6 +401,7 @@
           <tr><td class="param-name">cx1, cy1</td><td class="param-type">number</td><td>First control point (influences the curve near the start).</td></tr>
           <tr><td class="param-name">cx2, cy2</td><td class="param-type">number</td><td>Second control point (influences the curve near the end).</td></tr>
           <tr><td class="param-name">x2, y2</td><td class="param-type">number</td><td>End anchor point.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments used to approximate the curve in ring space. Pass <code>1</code> to get a single straight (unwarped) segment instead of a smoothly curved one.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -425,12 +427,13 @@
         stretches and distorts with the polar transform. Use <code>mDot</code> instead
         if you want a circle that stays perfectly round in the final mandala.
       </p>
-      <code class="fn-sig">mCircle(x, y, r)</code>
+      <code class="fn-sig">mCircle(x, y, r [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td class="param-name">x, y</td><td class="param-type">number</td><td>Centre of the circle in motif space.</td></tr>
           <tr><td class="param-name">r</td><td class="param-type">number</td><td>Radius in motif-space units.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of polygon segments used to approximate the circle in ring space. Higher values give a smoother result; lower values produce a coarser polygon.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -478,13 +481,14 @@
         <span class="card-title">mEllipse — Ellipse</span>
       </div>
       <p>Draws a filled ellipse in motif space. Like <code>mCircle</code> but with independent horizontal and vertical radii.</p>
-      <code class="fn-sig">mEllipse(cx, cy, rx, ry)</code>
+      <code class="fn-sig">mEllipse(cx, cy, rx, ry [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td class="param-name">cx, cy</td><td class="param-type">number</td><td>Centre of the ellipse in motif space.</td></tr>
           <tr><td class="param-name">rx</td><td class="param-type">number</td><td>Horizontal radius.</td></tr>
           <tr><td class="param-name">ry</td><td class="param-type">number</td><td>Vertical radius.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of polygon segments used to approximate the ellipse in ring space. Higher values give a smoother result; lower values produce a coarser polygon.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -503,7 +507,7 @@
         <span class="card-title">mArc — Circular Arc</span>
       </div>
       <p>Draws an open circular arc (stroke only) in motif space.</p>
-      <code class="fn-sig">mArc(cx, cy, r, startAngle, endAngle)</code>
+      <code class="fn-sig">mArc(cx, cy, r, startAngle, endAngle [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
@@ -511,6 +515,7 @@
           <tr><td class="param-name">r</td><td class="param-type">number</td><td>Radius in motif-space units.</td></tr>
           <tr><td class="param-name">startAngle</td><td class="param-type">number</td><td>Starting angle in the sketch's current <code>angleMode()</code> (0 = right, increasing clockwise).</td></tr>
           <tr><td class="param-name">endAngle</td><td class="param-type">number</td><td>Ending angle in the sketch's current <code>angleMode()</code>.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments used to approximate the arc in ring space. Pass <code>1</code> to get a single straight (unwarped) segment instead of a smoothly curved one.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -529,13 +534,14 @@
         <span class="card-title">mTriangle — Triangle</span>
       </div>
       <p>Draws a closed, filled triangle in motif space. Specify the three vertices in order (e.g. clockwise).</p>
-      <code class="fn-sig">mTriangle(x1, y1, x2, y2, x3, y3)</code>
+      <code class="fn-sig">mTriangle(x1, y1, x2, y2, x3, y3 [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td class="param-name">x1, y1</td><td class="param-type">number</td><td>First vertex.</td></tr>
           <tr><td class="param-name">x2, y2</td><td class="param-type">number</td><td>Second vertex.</td></tr>
           <tr><td class="param-name">x3, y3</td><td class="param-type">number</td><td>Third vertex.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments per edge used to approximate the shape in ring space. Pass <code>1</code> to get straight (unwarped) edges instead of smoothly curved ones.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -554,7 +560,7 @@
         <span class="card-title">mQuad — Quadrilateral</span>
       </div>
       <p>Draws a closed, filled quadrilateral in motif space. Specify all four vertices in order.</p>
-      <code class="fn-sig">mQuad(x1, y1, x2, y2, x3, y3, x4, y4)</code>
+      <code class="fn-sig">mQuad(x1, y1, x2, y2, x3, y3, x4, y4 [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
@@ -562,6 +568,7 @@
           <tr><td class="param-name">x2, y2</td><td class="param-type">number</td><td>Second vertex.</td></tr>
           <tr><td class="param-name">x3, y3</td><td class="param-type">number</td><td>Third vertex.</td></tr>
           <tr><td class="param-name">x4, y4</td><td class="param-type">number</td><td>Fourth vertex.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments per edge used to approximate the shape in ring space. Pass <code>1</code> to get straight (unwarped) edges instead of smoothly curved ones.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -580,11 +587,12 @@
         <span class="card-title">mShape — Closed Polygon</span>
       </div>
       <p>Draws a closed, filled polygon from an array of <code>vec2</code> points in motif space.</p>
-      <code class="fn-sig">mShape(points)</code>
+      <code class="fn-sig">mShape(points [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td class="param-name">points</td><td class="param-type">Array&lt;{x, y}&gt;</td><td>Array of vertices in motif space. Use <code>vec2(x, y)</code> to create each point.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments per edge used to approximate the shape in ring space. Pass <code>1</code> to get straight (unwarped) edges instead of smoothly curved ones.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -608,11 +616,12 @@
         <span class="card-title">mPath — Open Polyline</span>
       </div>
       <p>Draws an open polyline (stroke only) through an array of <code>vec2</code> points in motif space.</p>
-      <code class="fn-sig">mPath(points)</code>
+      <code class="fn-sig">mPath(points [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td class="param-name">points</td><td class="param-type">Array&lt;{x, y}&gt;</td><td>Array of vertices in motif space. Use <code>vec2(x, y)</code> to create each point.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments per edge used to approximate the path in ring space. Pass <code>1</code> to get straight (unwarped) edges instead of smoothly curved ones.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -637,11 +646,12 @@
         <span class="card-title">mCurve — Smooth Spline</span>
       </div>
       <p>Draws a smooth Catmull-Rom spline (stroke only) through an array of <code>vec2</code> control points in motif space. The curve passes through every point.</p>
-      <code class="fn-sig">mCurve(points)</code>
+      <code class="fn-sig">mCurve(points [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td class="param-name">points</td><td class="param-type">Array&lt;{x, y}&gt;</td><td>Control points in motif space. Use <code>vec2(x, y)</code> to create each point. At least 2 points required.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments per span used to approximate the spline in ring space. Pass <code>1</code> to get straight (unwarped) segments instead of smoothly curved ones.</td></tr>
         </tbody>
       </table>
       <div class="example">
@@ -666,7 +676,7 @@
         <span class="card-title">mBox — Rectangle</span>
       </div>
       <p>Draws an axis-aligned rectangle in motif space. Fill is respected because the shape is closed.</p>
-      <code class="fn-sig">mBox(x, y, w, h)</code>
+      <code class="fn-sig">mBox(x, y, w, h [, divisions])</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
@@ -674,6 +684,7 @@
           <tr><td class="param-name">y</td><td class="param-type">number</td><td>y-coordinate of the top-left corner in motif space.</td></tr>
           <tr><td class="param-name">w</td><td class="param-type">number</td><td>Width of the rectangle in motif-space units.</td></tr>
           <tr><td class="param-name">h</td><td class="param-type">number</td><td>Height of the rectangle in motif-space units.</td></tr>
+          <tr><td class="param-name">divisions</td><td class="param-type">number (optional)</td><td>Number of line segments per edge used to approximate the rectangle in ring space. Pass <code>1</code> to get straight (unwarped) edges instead of smoothly curved ones.</td></tr>
         </tbody>
       </table>
       <div class="example">

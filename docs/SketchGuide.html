@@ -366,7 +366,7 @@
   <span class="fn">ring</span>({ shape: yourMotif, n: <span class="nm">12</span>, r1: <span class="nm">100</span>, r2: <span class="nm">130</span> });
 
   <span class="cm">// ── Debug view (toggled from the toolbar) ─────────────</span>
-  <span class="kw">if</span> (UI.<span class="fn">isDebugDrawEnabled</span>()) {
+  <span class="kw">if</span> (UI.<span class="fn">showMotif</span>) {
     <span class="fn">showMotif</span>(yourMotif);  <span class="cm">// preview motif in isolation</span>
   }
 }
@@ -381,7 +381,7 @@
       </div>
 
       <div class="tip">
-        💡 Enable <strong>Debug Draw</strong> from the toolbar to see your motif
+        💡 Click <strong>Show Motif</strong> from the toolbar to see your motif
         drawn flat, with the motif-space grid and coordinate labels. This makes
         it much easier to position shapes precisely.
       </div>
