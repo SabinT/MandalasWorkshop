@@ -11,12 +11,12 @@ class WorkshopSketchUI {
         this.debugStorageKey = debugStorageKey;
         this.gridStorageKey = gridStorageKey;
         this.gridDivisionsStorageKey = gridDivisionsStorageKey;
-        this.debugDraw = this._loadDebugDraw();
+        this.showMotif = this._loadDebugDraw();
         this.showMotifGrid = this._loadShowMotifGrid();
         this.polarGridDivisions = this._loadPolarGridDivisions();
         this.canvasContainer = null;
         this.toolbar = null;
-        this.debugToggleButton = null;
+        this.showMotifButton = null;
         this.gridToggleButton = null;
         this.gridDivisionsContainer = null;
         this.gridDivisionsInput = null;
@@ -74,9 +74,9 @@ class WorkshopSketchUI {
         this.toolbar.style('gap', '12px');
         this.toolbar.style('width', '100%');
 
-        this.debugToggleButton = createButton('');
-        this.debugToggleButton.parent(this.toolbar);
-        this.debugToggleButton.mousePressed(() => this.toggleDebugDraw());
+        this.showMotifButton = createButton('');
+        this.showMotifButton.parent(this.toolbar);
+        this.showMotifButton.mousePressed(() => this.toggleDebugDraw());
 
         this.gridToggleButton = createButton('');
         this.gridToggleButton.parent(this.toolbar);
@@ -120,7 +120,7 @@ class WorkshopSketchUI {
         this.exportButton.parent(this.toolbar);
         this.exportButton.mousePressed(() => this.exportPng());
 
-        this._styleToolbarButton(this.debugToggleButton);
+        this._styleToolbarButton(this.showMotifButton);
         this._styleToolbarButton(this.gridToggleButton);
         this._styleToolbarButton(this.exportButton);
         this._updateDebugToggleLabel();
@@ -131,14 +131,11 @@ class WorkshopSketchUI {
         return this.canvas;
     }
 
-    isDebugDrawEnabled() {
-        return this.debugDraw;
-    }
-
     toggleDebugDraw() {
-        this.debugDraw = !this.debugDraw;
+        this.showMotif = !this.showMotif;
         this._saveDebugDraw();
         this._updateDebugToggleLabel();
+        this._updateGridDivisionsVisibility();
     }
 
     isShowMotifGridEnabled() {
@@ -168,7 +165,7 @@ class WorkshopSketchUI {
     }
 
     _saveDebugDraw() {
-        localStorage.setItem(this.debugStorageKey, String(this.debugDraw));
+        localStorage.setItem(this.debugStorageKey, String(this.showMotif));
     }
 
     _loadShowMotifGrid() {
@@ -191,8 +188,8 @@ class WorkshopSketchUI {
     }
 
     _updateDebugToggleLabel() {
-        if (!this.debugToggleButton) return;
-        this.debugToggleButton.html(this.debugDraw ? 'Disable Debug Draw' : 'Enable Debug Draw');
+        if (!this.showMotifButton) return;
+        this.showMotifButton.html(this.showMotif ? 'Show Mandala' : 'Show Motif');
     }
 
     _updateGridToggleLabel() {
@@ -202,7 +199,7 @@ class WorkshopSketchUI {
 
     _updateGridDivisionsVisibility() {
         if (!this.gridDivisionsContainer) return;
-        this.gridDivisionsContainer.style('display', this.showMotifGrid ? 'flex' : 'none');
+        this.gridDivisionsContainer.style('display', (this.showMotifGrid && !this.showMotif) ? 'flex' : 'none');
     }
 
     _styleToolbarButton(button) {

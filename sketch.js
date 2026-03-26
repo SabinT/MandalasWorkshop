@@ -28,7 +28,7 @@ function draw() {
     ring({ shape: yourMotif, n: 24, r1: 250, r2: 300 });
 
     // This block is activated when you enable "Enable Debug Draw" in the UI.
-    if (UI.isDebugDrawEnabled()) {
+    if (UI.showMotif) {
         // Show isolated motif designs in debug mode.
         // Add more lines like this to preview multiple motifs at once.
         showMotif(yourMotif);
