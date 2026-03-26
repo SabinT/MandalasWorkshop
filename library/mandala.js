@@ -169,27 +169,6 @@ function mCurve(points, divisions) {
 }
 
 /**
- * Draw a true circle (not distorted by polar mapping) in motif space.
- * Unlike mCircle, the dot always renders as a perfect circle in the final mandala
- * because only its centre is mapped into ring space.
- * The radius is scaled by the ring's radial extent when rendered.
- *
- * @param {number} x  Centre x in motif space.
- * @param {number} y  Centre y in motif space.
- * @param {number} r  Radius in motif-space units.
- */
-function mDot(x, y, r) {
-    if (_isCapturingMotif) {
-        const tp = _mfApply(_motifMatrix, x, y);
-        const scaleX = Math.sqrt(_motifMatrix.a * _motifMatrix.a + _motifMatrix.b * _motifMatrix.b);
-        const scaleY = Math.sqrt(_motifMatrix.c * _motifMatrix.c + _motifMatrix.d * _motifMatrix.d);
-        _commands.push({ type: 'dot', x: tp.x, y: tp.y, r: r * Math.sqrt(scaleX * scaleY) });
-    } else {
-        _commands.push({ type: 'dot', x, y, r });
-    }
-}
-
-/**
  * Draw an axis-aligned rectangle (box) in motif space.
  * Fill is respected because the shape is closed.
  *
