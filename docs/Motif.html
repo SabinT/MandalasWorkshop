@@ -353,7 +353,8 @@
         <li><a href="#mShape">mShape(points)</a></li>
         <li><a href="#mPath">mPath(points)</a></li>
         <li><a href="#mCurve">mCurve(points)</a></li>
-        <li><a href="#ring">ring({ shape, n, r1, r2 })</a></li>
+        <li><a href="#mBox">mBox(x, y, w, h)</a></li>
+        <li><a href="#ring">ring({ shape, n, r1, r2, offset, gapDegrees })</a></li>
         <li><a href="#setMotifSize">setMotifSize(size)</a></li>
       </ul>
       <a class="back-to-top" href="#top">[back to top]</a>
@@ -658,6 +659,33 @@
       <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
+    <!-- ── mBox ── -->
+    <div class="card" id="mBox">
+      <div class="card-header">
+        <div class="card-icon">▭</div>
+        <span class="card-title">mBox — Rectangle</span>
+      </div>
+      <p>Draws an axis-aligned rectangle in motif space. Fill is respected because the shape is closed.</p>
+      <code class="fn-sig">mBox(x, y, w, h)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">x</td><td class="param-type">number</td><td>x-coordinate of the top-left corner in motif space.</td></tr>
+          <tr><td class="param-name">y</td><td class="param-type">number</td><td>y-coordinate of the top-left corner in motif space.</td></tr>
+          <tr><td class="param-name">w</td><td class="param-type">number</td><td>Width of the rectangle in motif-space units.</td></tr>
+          <tr><td class="param-name">h</td><td class="param-type">number</td><td>Height of the rectangle in motif-space units.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — a centred rectangle</p>
+        <pre><span class="kw">function</span> <span class="fn">motifBrick</span>() {
+  <span class="cm">// A rectangle centred at (0, 0) with width 1.2 and height 0.6</span>
+  <span class="fn">mBox</span>(-<span class="nm">0.6</span>, -<span class="nm">0.3</span>, <span class="nm">1.2</span>, <span class="nm">0.6</span>);
+}</pre>
+      </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
+    </div>
+
     <!-- ── Stroke & Fill ── -->
     <div class="card">
       <div class="card-header">
@@ -672,7 +700,7 @@
       </p>
       <p>
         Closed shapes (<code>mCircle</code>, <code>mEllipse</code>,
-        <code>mTriangle</code>, <code>mQuad</code>, <code>mShape</code>) respect
+        <code>mTriangle</code>, <code>mQuad</code>, <code>mShape</code>, <code>mBox</code>) respect
         both stroke and fill. Open shapes (<code>mLine</code>, <code>mBezier</code>,
         <code>mArc</code>, <code>mPath</code>, <code>mCurve</code>) are stroke only.
       </p>
@@ -707,7 +735,7 @@
         Call this from inside <code>draw()</code> after
         <code>translate(width/2, height/2)</code>.
       </p>
-      <code class="fn-sig">ring({ shape, n, r1, r2 })</code>
+      <code class="fn-sig">ring({ shape, n, r1, r2, offset, gapDegrees })</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
@@ -743,6 +771,24 @@
               <strong>Outer radius</strong> — distance from the canvas centre to the
               outer edge of the ring, in pixels. Corresponds to y = +S in motif space.
               Must be greater than <code>r1</code>.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">offset</td>
+            <td class="param-type">number (optional, default 0)</td>
+            <td>
+              <strong>Segment offset.</strong> Rotates the entire ring by a fraction of
+              one segment. <code>0.5</code> shifts by a half-segment — useful for
+              interleaving two rings of the same motif. Defaults to <code>0</code>.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">gapDegrees</td>
+            <td class="param-type">number (optional, default 0)</td>
+            <td>
+              <strong>Angular gap</strong> between adjacent elements, in degrees.
+              Shrinks each motif's angular extent so there is empty space between
+              neighbours. Maximum useful value is <code>360 / n</code>. Defaults to <code>0</code>.
             </td>
           </tr>
         </tbody>
