@@ -644,6 +644,7 @@ function _smDrawGrid() {
     const bg = _smGetBackgroundBrightness();
     const majorTone = _smGetContrastBrightness();
     const minorTone = lerp(bg, majorTone, 0.65);
+    const halfAxisTone = _smGetContrastBrightness(1.35);
     const outsideTone = lerp(bg, majorTone, 0.35);
     const boxTone = lerp(bg, majorTone, 0.85);
     const ds = _designSpaceSize;
@@ -658,9 +659,11 @@ function _smDrawGrid() {
     const myMin = (0      - oy) / sc;
     const myMax = (height - oy) / sc;
 
-    // Grid: 8 minor divisions across the full design-space range, major every 2 minor steps
-    const minorStep = ds * 0.25;
-    const majorPer  = 2;     // major line every majorPer minor steps
+    // Grid: 20 divisions across full design space (10 per side from the center).
+    const minorStep = ds > 0 ? ds / 10 : 1;
+    const majorPer  = 5;     // every 5 units: ... -10, -5, 0, 5, 10 for ds=10
+    const halfAxis = ds * 0.5;
+    const epsilon = minorStep * 0.001;
 
     noFill();
     strokeWeight(1);
@@ -676,6 +679,7 @@ function _smDrawGrid() {
             const mx     = i * minorStep;
             const inside = mx >= -ds && mx <= ds;
             const major  = (i % majorPer === 0);
+            const halfAxisLine = Math.abs(Math.abs(mx) - halfAxis) <= epsilon;
             const sx = mx * sc + ox;
 
             if (inside) {
@@ -683,7 +687,7 @@ function _smDrawGrid() {
                 line(sx, 0, sx, yTop);
                 line(sx, yBottom, sx, height);
 
-                stroke(major ? majorTone : minorTone);
+                stroke(halfAxisLine ? halfAxisTone : (major ? majorTone : minorTone));
                 line(sx, yTop, sx, yBottom);
             } else {
                 stroke(outsideTone);
@@ -696,6 +700,7 @@ function _smDrawGrid() {
             const my     = j * minorStep;
             const inside = my >= -ds && my <= ds;
             const major  = (j % majorPer === 0);
+            const halfAxisLine = Math.abs(Math.abs(my) - halfAxis) <= epsilon;
             const sy = my * sc + oy;
 
             if (inside) {
@@ -703,7 +708,7 @@ function _smDrawGrid() {
                 line(0, sy, xLeft, sy);
                 line(xRight, sy, width, sy);
 
-                stroke(major ? majorTone : minorTone);
+                stroke(halfAxisLine ? halfAxisTone : (major ? majorTone : minorTone));
                 line(xLeft, sy, xRight, sy);
             } else {
                 stroke(outsideTone);
@@ -725,9 +730,11 @@ function _smDrawReferenceLabels(xLeft, xRight, yTop, yBottom) {
     const tone = _smGetContrastBrightness(2);
     const pad = 10;
     const ds = _designSpaceSize;
+    const hs = ds * 0.5;
     // Format a coordinate value: integers display without decimals, others use toFixed(2)
     const fv = v => Number.isInteger(v) ? String(v) : parseFloat(v.toFixed(2)).toString();
     const n = fv(ds);
+    const h = fv(hs);
 
     noStroke();
     fill(tone);
@@ -738,22 +745,30 @@ function _smDrawReferenceLabels(xLeft, xRight, yTop, yBottom) {
     text(`(-${n}, -${n})`, xLeft - pad, yTop - pad);
 
     textAlign(CENTER, BOTTOM);
+    text(`(-${h}, -${n})`, xLeft + (xRight - xLeft) * 0.25, yTop - pad);
+    text(`(${h}, -${n})`, xLeft + (xRight - xLeft) * 0.75, yTop - pad);
     text(`(0, -${n})`, (xLeft + xRight) / 2, yTop - pad);
 
     textAlign(LEFT, BOTTOM);
     text(`(${n}, -${n})`, xRight + pad, yTop - pad);
 
     textAlign(RIGHT, CENTER);
+    text(`(-${n}, -${h})`, xLeft - pad, yTop + (yBottom - yTop) * 0.25);
     text(`(-${n}, 0)`, xLeft - pad, (yTop + yBottom) / 2);
+    text(`(-${n}, ${h})`, xLeft - pad, yTop + (yBottom - yTop) * 0.75);
 
     textAlign(LEFT, CENTER);
+    text(`(${n}, -${h})`, xRight + pad, yTop + (yBottom - yTop) * 0.25);
     text(`(${n}, 0)`, xRight + pad, (yTop + yBottom) / 2);
+    text(`(${n}, ${h})`, xRight + pad, yTop + (yBottom - yTop) * 0.75);
 
     textAlign(RIGHT, TOP);
     text(`(-${n}, ${n})`, xLeft - pad, yBottom + pad);
 
     textAlign(CENTER, TOP);
+    text(`(-${h}, ${n})`, xLeft + (xRight - xLeft) * 0.25, yBottom + pad);
     text(`(0, ${n})`, (xLeft + xRight) / 2, yBottom + pad);
+    text(`(${h}, ${n})`, xLeft + (xRight - xLeft) * 0.75, yBottom + pad);
 
     textAlign(LEFT, TOP);
     text(`(${n}, ${n})`, xRight + pad, yBottom + pad);
