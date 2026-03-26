@@ -12,7 +12,7 @@
 // later replayed by ring() into polar space.
 // ============================================================
 
-/** @type {Array<LineCurve|BezierCurve|CircleCurve|PolyCurve|ArcCurve|EllipseCurve|CatmullRomCurve>} Captured curves for the current motif. */
+/** @type {Array<LineCurve|BezierCurve|CircleCurve|PolyCurve|ArcCurve|EllipseCurve|CatmullRomCurve|DotCommand>} Captured curves/commands for the current motif. */
 let _commands = [];
 
 /** Capture-time motif transform state (translate/rotate/scale within motif functions). */
@@ -51,6 +51,21 @@ function mLine(x1, y1, x2, y2) {
  */
 function mCircle(x, y, r) {
     _pushCommand(new CircleCurve(x, y, r));
+}
+
+/**
+ * Draw an undistorted dot in motif space.
+ *
+ * Unlike mCircle(), this remains a true screen-space circle inside ring() output.
+ * The center is mapped through mapToRing(), and radius is mapped against ring
+ * thickness so motif radius ds maps to half the radial thickness.
+ *
+ * @param {number} x  Centre x in motif space.
+ * @param {number} y  Centre y in motif space.
+ * @param {number} r  Radius in motif-space units.
+ */
+function mDot(x, y, r) {
+    _pushCommand(new DotCommand(x, y, r));
 }
 
 /**
@@ -215,10 +230,27 @@ function captureMotif(shapeFn) {
 /** Push a curve command, applying the current motif transform when capturing. */
 function _pushCommand(cmd) {
     if (_isCapturingMotif) {
-        _commands.push(new TransformedCurve(cmd, _mfClone(_motifMatrix)));
+        if (cmd.kind === 'dot') {
+            const m = _mfClone(_motifMatrix);
+            const c = _mfApply(m, cmd.x, cmd.y);
+            const sx = Math.hypot(m.a, m.b);
+            const sy = Math.hypot(m.c, m.d);
+            const scaleAvg = 0.5 * (sx + sy);
+            _commands.push(new DotCommand(c.x, c.y, cmd.r * scaleAvg));
+        } else {
+            _commands.push(new TransformedCurve(cmd, _mfClone(_motifMatrix)));
+        }
     } else {
         _commands.push(cmd);
     }
+}
+
+/** Simple command record for mDot. */
+function DotCommand(x, y, r) {
+    this.kind = 'dot';
+    this.x = x;
+    this.y = y;
+    this.r = r;
 }
 
 /** Execute motif code with local transform shims for translate/rotate/scale/push/pop/resetMatrix. */
@@ -354,11 +386,14 @@ function mapToRing(x, y, aCenter, aStep, r1, r2) {
 function drawCommandsInRing(commands, aCenter, aStep, r1, r2) {
     const ds = _designSpaceSize;
     for (const cmd of commands) {
-        if (cmd.type === 'dot') {
-            const center = mapToRing(cmd.x, cmd.y, aCenter, aStep, r1, r2);
-            const radiusScale = (r2 - r1) / (2 * ds);
-            circle(center.x, center.y, cmd.r * radiusScale * 2);
-        } else if (cmd.closed) {
+        if (cmd.kind === 'dot') {
+            const c = mapToRing(cmd.x, cmd.y, aCenter, aStep, r1, r2);
+            const radiusPx = _mapMotifRadiusToRingRadius(cmd.r, r1, r2, aStep, Math.hypot(c.x, c.y));
+            circle(c.x, c.y, radiusPx * 2);
+            continue;
+        }
+
+        if (cmd.closed) {
             beginShape();
             for (let i = 0; i <= cmd.divisions; i++) {
                 const p      = cmd.evaluate(i / cmd.divisions);
@@ -378,6 +413,26 @@ function drawCommandsInRing(commands, aCenter, aStep, r1, r2) {
             }
         }
     }
+}
+
+/**
+ * Convert a motif-space radius into an undistorted screen-space radius for the current ring.
+ *
+ * Primary mapping uses radial thickness (r2-r1), as requested.
+ * For degenerate rings where r1===r2, fall back to angular spacing at the mapped center radius.
+ */
+function _mapMotifRadiusToRingRadius(r, r1, r2, aStep, centerRadiusPx) {
+    const thickness = Math.abs(r2 - r1);
+    const unitsToEdge = _designSpaceSize;
+    if (unitsToEdge <= 0) return 0;
+    const radialPxPerUnit = thickness / unitsToEdge;
+    if (radialPxPerUnit > 0) {
+        return Math.abs(r) * radialPxPerUnit;
+    }
+
+    // Zero-thickness ring fallback: derive scale from arc width per motif unit.
+    const angularPxPerUnit = Math.abs(centerRadiusPx) * Math.abs(aStep) / (2 * unitsToEdge);
+    return Math.abs(r) * angularPxPerUnit;
 }
 
 // ------------------------------------------------------------
@@ -632,6 +687,11 @@ function _smDrawReferenceLabels(xLeft, xRight, yTop, yBottom) {
 /** Replay captured motif commands in screen space. */
 function _smDrawCommands(commands, sc, ox, oy) {
     for (const cmd of commands) {
+        if (cmd.kind === 'dot') {
+            circle(cmd.x * sc + ox, cmd.y * sc + oy, Math.abs(cmd.r) * sc * 2);
+            continue;
+        }
+
         if (cmd.closed) {
             beginShape();
             for (let i = 0; i <= cmd.divisions; i++) {

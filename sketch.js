@@ -63,9 +63,12 @@ function draw() {
     fill("rgba(255, 200, 0, 0.5)");
     ring({ shape: motifTile,    n: 16, r1: 460, r2: 490 });
 
+    ring({ shape: motifDot, n: 16, r1: 490, r2: 490 });
+
     if (UI.isDebugDrawEnabled()) {
         showMotif(motifPetal);
         showMotif(motifStar);
+        showMotif(motifDot);
     }
 }
 
@@ -139,4 +142,8 @@ function motifWave() {
 function motifTile() {
     // Slightly tapered tile that follows the ring curvature
     mQuad(-0.65 * DESIGN_SPACE, -0.82 * DESIGN_SPACE,  0.65 * DESIGN_SPACE, -0.82 * DESIGN_SPACE,  0.82 * DESIGN_SPACE, 0.82 * DESIGN_SPACE, -0.82 * DESIGN_SPACE, 0.82 * DESIGN_SPACE);
+}
+
+function motifDot() {
+    mDot(0, 0, DESIGN_SPACE);
 }
