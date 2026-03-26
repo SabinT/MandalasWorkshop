@@ -219,6 +219,25 @@
       line-height: 1.5;
     }
 
+    /* ── recommended badge ── */
+    .recommended-badge {
+      color: var(--accent);
+      font-size: 0.7em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── setup subtitle (between toolbar and cards) ── */
+    .setup-subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 400;
+      width: 100%;
+      max-width: 860px;
+      margin-bottom: 0.6rem;
+      margin-top: -0.4rem;
+    }
+
     /* ── docs toolbar ── */
     .docs-toolbar {
       width: 100%;
@@ -312,17 +331,17 @@
   <header>
     <p class="workshop-label">Workshop</p>
     <h1>Drawing Mandalas with Code</h1>
-    <p class="subtitle">Choose the setup that works best for you</p>
   </header>
 
   <div class="docs-toolbar">
-    <span class="docs-label">Docs :</span>
     <a class="docs-btn" href="Motif.html">✏️ Drawing Functions</a>
     <a class="docs-btn" href="SketchGuide.html">📖 Sketch Guide</a>
     <a class="docs-btn"
        href="https://drive.google.com/drive/folders/1lybZyAM4XaRwzCVEKXG8uUO8HZuhcIr4?usp=sharing"
-       target="_blank" rel="noopener">📦 Additional Downloads</a>
+       target="_blank" rel="noopener">📦 Downloads</a>
   </div>
+
+  <p class="setup-subtitle">Choose the setup that works for you</p>
 
   <div class="cards">
 
@@ -330,7 +349,7 @@
     <div class="card">
       <div class="card-header">
         <div class="card-icon online">🌐</div>
-        <span class="card-title">Online — p5.js Editor</span>
+        <span class="card-title">Online — p5.js Editor <span class="recommended-badge">(Recommended)</span></span>
       </div>
       <ol>
         <li><span>
@@ -400,16 +419,6 @@
       </ol>
     </div>
 
-  </div>
-
-  <div class="materials">
-    <a class="materials-link"
-       href="https://drive.google.com/drive/folders/1lybZyAM4XaRwzCVEKXG8uUO8HZuhcIr4?usp=sharing"
-       target="_blank" rel="noopener"
-       aria-label="Download additional workshop materials (opens Google Drive in new tab)">
-      <span class="dl-icon">📦</span>
-      Additional Materials
-    </a>
   </div>
 
   <footer>Drawing Mandalas with Code · p5.js Workshop</footer>
