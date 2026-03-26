@@ -62,7 +62,8 @@ function yourMotif() {
 
     // mCircle(0, 0, 10);
 
-    // mCircle(0, 0, 10, 6); // Hexagon = circle approximated with 6 points!
+    // Hexagon = circle approximated with 6 points!
+    // mCircle(0, 0, 10, 6);
 
     // mDot(0, 0, 10);
 
