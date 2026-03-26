@@ -489,6 +489,17 @@ let _smDragPanX0   = 0;
 let _smDragPanY0   = 0;
 let _smLastFrame   = -1;      // frameCount when background was last cleared
 let _smActive      = false;   // true once showMotif() has been called
+let _smGridLinesVisible = true; // toggle only grid lines (box/labels stay visible)
+
+/** Control whether showMotif() draws grid lines (box and labels are always shown). */
+function setShowMotifGridVisible(visible) {
+    _smGridLinesVisible = !!visible;
+}
+
+/** Read current showMotif() grid-line visibility state. */
+function isShowMotifGridVisible() {
+    return _smGridLinesVisible;
+}
 
 /**
  * Preview / debug a motif function on the current canvas.
@@ -612,43 +623,45 @@ function _smDrawGrid() {
     const iyMin = Math.floor(myMin / minorStep);
     const iyMax = Math.ceil(myMax  / minorStep);
 
-    // Vertical grid lines
-    for (let i = ixMin; i <= ixMax; i++) {
-        const mx     = i * minorStep;
-        const inside = mx >= -ds && mx <= ds;
-        const major  = (i % majorPer === 0);
-        const sx = mx * sc + ox;
+    if (_smGridLinesVisible) {
+        // Vertical grid lines
+        for (let i = ixMin; i <= ixMax; i++) {
+            const mx     = i * minorStep;
+            const inside = mx >= -ds && mx <= ds;
+            const major  = (i % majorPer === 0);
+            const sx = mx * sc + ox;
 
-        if (inside) {
-            stroke(outsideTone);
-            line(sx, 0, sx, yTop);
-            line(sx, yBottom, sx, height);
+            if (inside) {
+                stroke(outsideTone);
+                line(sx, 0, sx, yTop);
+                line(sx, yBottom, sx, height);
 
-            stroke(major ? majorTone : minorTone);
-            line(sx, yTop, sx, yBottom);
-        } else {
-            stroke(outsideTone);
-            line(sx, 0, sx, height);
+                stroke(major ? majorTone : minorTone);
+                line(sx, yTop, sx, yBottom);
+            } else {
+                stroke(outsideTone);
+                line(sx, 0, sx, height);
+            }
         }
-    }
 
-    // Horizontal grid lines
-    for (let j = iyMin; j <= iyMax; j++) {
-        const my     = j * minorStep;
-        const inside = my >= -ds && my <= ds;
-        const major  = (j % majorPer === 0);
-        const sy = my * sc + oy;
+        // Horizontal grid lines
+        for (let j = iyMin; j <= iyMax; j++) {
+            const my     = j * minorStep;
+            const inside = my >= -ds && my <= ds;
+            const major  = (j % majorPer === 0);
+            const sy = my * sc + oy;
 
-        if (inside) {
-            stroke(outsideTone);
-            line(0, sy, xLeft, sy);
-            line(xRight, sy, width, sy);
+            if (inside) {
+                stroke(outsideTone);
+                line(0, sy, xLeft, sy);
+                line(xRight, sy, width, sy);
 
-            stroke(major ? majorTone : minorTone);
-            line(xLeft, sy, xRight, sy);
-        } else {
-            stroke(outsideTone);
-            line(0, sy, width, sy);
+                stroke(major ? majorTone : minorTone);
+                line(xLeft, sy, xRight, sy);
+            } else {
+                stroke(outsideTone);
+                line(0, sy, width, sy);
+            }
         }
     }
 

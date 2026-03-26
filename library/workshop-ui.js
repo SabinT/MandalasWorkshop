@@ -3,12 +3,18 @@
 // ============================================================
 
 class WorkshopSketchUI {
-    constructor({ debugStorageKey = 'mandalasWorkshop.debugDraw' } = {}) {
+    constructor({
+        debugStorageKey = 'mandalasWorkshop.debugDraw',
+        gridStorageKey = 'mandalasWorkshop.showMotifGrid'
+    } = {}) {
         this.debugStorageKey = debugStorageKey;
+        this.gridStorageKey = gridStorageKey;
         this.debugDraw = this._loadDebugDraw();
+        this.showMotifGrid = this._loadShowMotifGrid();
         this.canvasContainer = null;
         this.toolbar = null;
         this.debugToggleButton = null;
+        this.gridToggleButton = null;
         this.exportButton = null;
         this.canvas = null;
 
@@ -39,6 +45,10 @@ class WorkshopSketchUI {
                 return canvas;
             };
 
+            if (typeof globalThis.setShowMotifGridVisible === 'function') {
+                globalThis.setShowMotifGridVisible(ui.showMotifGrid);
+            }
+
             if (userSetup) userSetup.call(this);
         };
     }
@@ -63,13 +73,19 @@ class WorkshopSketchUI {
         this.debugToggleButton.parent(this.toolbar);
         this.debugToggleButton.mousePressed(() => this.toggleDebugDraw());
 
+        this.gridToggleButton = createButton('');
+        this.gridToggleButton.parent(this.toolbar);
+        this.gridToggleButton.mousePressed(() => this.toggleShowMotifGrid());
+
         this.exportButton = createButton('Export PNG');
         this.exportButton.parent(this.toolbar);
         this.exportButton.mousePressed(() => this.exportPng());
 
         this._styleToolbarButton(this.debugToggleButton);
+        this._styleToolbarButton(this.gridToggleButton);
         this._styleToolbarButton(this.exportButton);
         this._updateDebugToggleLabel();
+        this._updateGridToggleLabel();
 
         this.canvas.parent(this.canvasContainer);
         return this.canvas;
@@ -85,6 +101,19 @@ class WorkshopSketchUI {
         this._updateDebugToggleLabel();
     }
 
+    isShowMotifGridEnabled() {
+        return this.showMotifGrid;
+    }
+
+    toggleShowMotifGrid() {
+        this.showMotifGrid = !this.showMotifGrid;
+        this._saveShowMotifGrid();
+        if (typeof globalThis.setShowMotifGridVisible === 'function') {
+            globalThis.setShowMotifGridVisible(this.showMotifGrid);
+        }
+        this._updateGridToggleLabel();
+    }
+
     exportPng(filename = 'mandala') {
         saveCanvas(filename, 'png');
     }
@@ -97,9 +126,23 @@ class WorkshopSketchUI {
         localStorage.setItem(this.debugStorageKey, String(this.debugDraw));
     }
 
+    _loadShowMotifGrid() {
+        const raw = localStorage.getItem(this.gridStorageKey);
+        return raw === null ? true : raw === 'true';
+    }
+
+    _saveShowMotifGrid() {
+        localStorage.setItem(this.gridStorageKey, String(this.showMotifGrid));
+    }
+
     _updateDebugToggleLabel() {
         if (!this.debugToggleButton) return;
         this.debugToggleButton.html(this.debugDraw ? 'Disable Debug Draw' : 'Enable Debug Draw');
+    }
+
+    _updateGridToggleLabel() {
+        if (!this.gridToggleButton) return;
+        this.gridToggleButton.html(this.showMotifGrid ? 'Hide Grid' : 'Show Grid');
     }
 
     _styleToolbarButton(button) {
