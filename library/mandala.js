@@ -462,17 +462,61 @@ function _mapMotifRadiusToRingRadius(r, r1, r2, aStep, centerRadiusPx) {
  * @param {number} r2  Outer radius.
  */
 function drawPolarGrid(n, r1, r2) {
-    stroke(_smGetContrastBrightness(), 60);
+    if (!_smGridLinesVisible) return;
+
+    push();
+
+    const bg = _smGetBackgroundBrightness();
+    const majorTone = _smGetContrastBrightness();
+    const minorTone = lerp(bg, majorTone, 0.65);
+    const labelTone = _smGetContrastBrightness(2);
+
     noFill();
 
-    circle(0, 0, r1 * 2);
-    circle(0, 0, r2 * 2);
+    const majorDivisions = 5;
+    const minorPerMajor = 4;
+    const radialSpan = r2 - r1;
+    const majorStep = radialSpan / majorDivisions;
+    const minorStep = majorStep / minorPerMajor;
 
+    // Concentric circles: major + minor
+    for (let i = 0; i <= majorDivisions * minorPerMajor; i++) {
+        const r = r1 + i * minorStep;
+        const isMajor = (i % minorPerMajor) === 0;
+        stroke(isMajor ? majorTone : minorTone, isMajor ? 90 : 50);
+        strokeWeight(isMajor ? 1.2 : 1);
+        circle(0, 0, Math.abs(r) * 2);
+    }
+
+    // Radial spokes
     const angleStep = (Math.PI * 2) / n;
     for (let i = 0; i < n; i++) {
         const a = i * angleStep;
+        stroke(majorTone, 70);
+        strokeWeight(1);
         line(r1 * Math.cos(a), r1 * Math.sin(a), r2 * Math.cos(a), r2 * Math.sin(a));
     }
+
+    // Mouse hover helper: show current radius circle + radius readout
+    const mx = mouseX - width / 2;
+    const my = mouseY - height / 2;
+    const hoverR = Math.sqrt(mx * mx + my * my);
+
+    stroke(labelTone, 80);
+    strokeWeight(1);
+    noFill();
+    circle(0, 0, hoverR * 2);
+    line(0, 0, mx, my);
+
+    noStroke();
+    fill(labelTone);
+    textFont('monospace');
+    textAlign(LEFT, TOP);
+    const tx = mx + 8;
+    const ty = (my - 22 < -height / 2) ? my + 8 : my - 22;
+    text('r=' + hoverR.toFixed(1), tx, ty);
+
+    pop();
 }
 
 // ============================================================
@@ -536,10 +580,12 @@ function showMotif(motifFn) {
     pop();
 
     // Overlay: crosshair lines + coordinate label at the cursor
-    push();
-    resetMatrix();
-    _smDrawOverlay();
-    pop();
+    if (_smGridLinesVisible) {
+        push();
+        resetMatrix();
+        _smDrawOverlay();
+        pop();
+    }
 }
 
 // ---- showMotif internal helpers ----------------------------------------

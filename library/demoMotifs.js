@@ -80,9 +80,6 @@ function demoBox() {
  * Combines all demo motifs into a symmetric multi-ring design.
  */
 function demoMandala() {
-    // Faint grid to visualize the outermost ring segments
-    drawPolarGrid(16, 0, 490);
-
     // ── Ring 1: Gear Tooth (mLine only) ─────────────────────
     stroke(0);
     fill("rgba(200, 100, 50, 0.3)");

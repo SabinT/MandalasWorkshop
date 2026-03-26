@@ -17,12 +17,14 @@ function draw() {
     background(MANDALA_BG);
     translate(width / 2, height / 2);
 
+    // Mandala-view radial grid (toggle with Show/Hide Grid in toolbar)
+    drawPolarGrid(16, 0, width / 2);
+
     // This is where you can change the repitition and placement of motifs
     // Change the arguments to ring() to create different arrangements of your motif.
     // Add more lines like this to arrange more motifs.
     // Change color, thickness, etc before a ring() call to style that ring's motifs.
     ring({ shape: yourMotif, n: 12, r1: 100, r2: 130 });
-
 
     // This block is activated when you enable "Enable Debug Draw" in the UI.
     if (UI.isDebugDrawEnabled()) {
