@@ -26,7 +26,7 @@ function draw() {
     // Change color, thickness, etc before a ring() call to style that ring's motifs.
     ring({ shape: yourMotif, n: 24, r1: 100, r2: 130 });
 
-    ring({ shape: yourMotif, n: 24, r1: 130, r2: 160, offset: 0.5 });
+    ring({ shape: yourMotif, n: 24, r1: 130, r2: 140, offset: 0.5, gapDegrees: 10});
 
     // This block is activated when you enable "Enable Debug Draw" in the UI.
     if (UI.isDebugDrawEnabled()) {
