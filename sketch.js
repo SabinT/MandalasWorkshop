@@ -4,9 +4,10 @@
 //
 // HOW IT WORKS
 // ------------
-// • Design your motif in "easy space": a normalized square [-1,-1] to [1,1].
+// • Design your motif in "easy space": a square [-S,-S] to [S,S], where S is
+//   DESIGN_SPACE (set to 100 below).
 //     x axis  →  angular position within one ring segment
-//     y axis  →  radial position (-1 = inner edge, +1 = outer edge)
+//     y axis  →  radial position (-S = inner edge, +S = outer edge)
 // • Call ring() to repeat the motif radially around a circle.
 // • Use mLine(), mBezier(), mCircle(), mTriangle(), mQuad(), mShape(),
 //   mPath(), mArc(), mEllipse(), or mCurve() inside a motif function.
@@ -15,11 +16,14 @@
 // Change this one value to update both the full mandala view and showMotif().
 // You can use grayscale numbers like 255 or hex colors like "#ffffff".
 const MANDALA_BG = "#accbbc";
-globalThis.MANDALA_BG = MANDALA_BG;
+const CANVAS_SIZE = 1000;
+const DESIGN_SPACE = 100;
+const UI = new WorkshopSketchUI();
 
 function setup() {
-    createCanvas(1000, 1000);
-    angleMode(RADIANS);
+    createCanvas(CANVAS_SIZE, CANVAS_SIZE);
+    setDesignSpace(DESIGN_SPACE);
+    angleMode(DEGREES);
 }
 
 function draw() {
@@ -59,46 +63,48 @@ function draw() {
     fill("rgba(255, 200, 0, 0.5)");
     ring({ shape: motifTile,    n: 16, r1: 460, r2: 490 });
 
-    // showMotif(motifPetal);
-    // showMotif(motifStar);
+    if (UI.isDebugDrawEnabled()) {
+        showMotif(motifPetal);
+        showMotif(motifStar);
+    }
 }
 
 // ── Ring 1: Leaf — mLine, mBezier, mCircle ───────────────────
 function motifLeaf() {
-    mLine(0, -0.8, 0, 0.8);
+    mLine(0, -0.8 * DESIGN_SPACE, 0, 0.8 * DESIGN_SPACE);
     mBezier(
-        0, -0.8,
-        -0.8, -0.2,
-        -0.8,  0.2,
-        0,  0.8
+        0, -0.8 * DESIGN_SPACE,
+        -0.8 * DESIGN_SPACE, -0.2 * DESIGN_SPACE,
+        -0.8 * DESIGN_SPACE,  0.2 * DESIGN_SPACE,
+        0,  0.8 * DESIGN_SPACE
     );
     mBezier(
-        0, -0.8,
-        0.8, -0.2,
-        0.8,  0.2,
-        0,  0.8
+        0, -0.8 * DESIGN_SPACE,
+        0.8 * DESIGN_SPACE, -0.2 * DESIGN_SPACE,
+        0.8 * DESIGN_SPACE,  0.2 * DESIGN_SPACE,
+        0,  0.8 * DESIGN_SPACE
     );
-    mCircle(0, 0, 0.15);
+    mCircle(0, 0, 0.15 * DESIGN_SPACE);
 }
 
 // ── Ring 2: Feather — mTriangle, mArc ────────────────────────
 function motifFeather() {
     // Arrowhead triangle at the outer edge
-    mTriangle(-0.28, 0.45, 0.28, 0.45, 0, 0.92);
-    // Curved arc forming the quill stem
-    mArc(0, -0.5, 0.9, Math.PI * 0.36, Math.PI * 0.64);
+    mTriangle(-0.28 * DESIGN_SPACE, 0.45 * DESIGN_SPACE, 0.28 * DESIGN_SPACE, 0.45 * DESIGN_SPACE, 0, 0.92 * DESIGN_SPACE);
+    // Curved arc forming the quill stem (angles in degrees)
+    mArc(0, -0.5 * DESIGN_SPACE, 0.9 * DESIGN_SPACE, 64.8, 115.2);
 }
 
 // ── Ring 3: Petal — mEllipse, mPath ──────────────────────────
 function motifPetal() {
     // Tall ellipse petal
-    mEllipse(0, 0, 0.52, 0.52);
+    mEllipse(0, 0, 0.52 * DESIGN_SPACE, 0.52 * DESIGN_SPACE);
     // Decorative vein running through the petal
     mPath([
-        vec2( 0,   -0.7),
-        vec2(-0.18,  0  ),
-        vec2( 0.18,  0.3),
-        vec2( 0,    0.7),
+        vec2( 0,   -0.7 * DESIGN_SPACE),
+        vec2(-0.18 * DESIGN_SPACE,  0  ),
+        vec2( 0.18 * DESIGN_SPACE,  0.3 * DESIGN_SPACE),
+        vec2( 0,    0.7 * DESIGN_SPACE),
     ]);
 }
 
@@ -106,14 +112,14 @@ function motifPetal() {
 function motifStar() {
     // 4-pointed star built from 8 vertices
     mShape([
-        vec2( 0,   -0.92),
-        vec2( 0.18, -0.18),
-        vec2( 0.75,  0   ),
-        vec2( 0.18,  0.18),
-        vec2( 0,    0.92),
-        vec2(-0.18,  0.18),
-        vec2(-0.75,  0   ),
-        vec2(-0.18, -0.18),
+        vec2( 0,   -0.92 * DESIGN_SPACE),
+        vec2( 0.18 * DESIGN_SPACE, -0.18 * DESIGN_SPACE),
+        vec2( 0.75 * DESIGN_SPACE,  0   ),
+        vec2( 0.18 * DESIGN_SPACE,  0.18 * DESIGN_SPACE),
+        vec2( 0,    0.92 * DESIGN_SPACE),
+        vec2(-0.18 * DESIGN_SPACE,  0.18 * DESIGN_SPACE),
+        vec2(-0.75 * DESIGN_SPACE,  0   ),
+        vec2(-0.18 * DESIGN_SPACE, -0.18 * DESIGN_SPACE),
     ]);
 }
 
@@ -121,16 +127,16 @@ function motifStar() {
 function motifWave() {
     // Smooth S-curve spanning the full width of the segment
     mCurve([
-        vec2(-1,    0  ),
-        vec2(-0.5, -0.75),
-        vec2( 0,    0.75),
-        vec2( 0.5, -0.75),
-        vec2( 1,    0  ),
+        vec2(-1 * DESIGN_SPACE,    0  ),
+        vec2(-0.5 * DESIGN_SPACE, -0.75 * DESIGN_SPACE),
+        vec2( 0,    0.75 * DESIGN_SPACE),
+        vec2( 0.5 * DESIGN_SPACE, -0.75 * DESIGN_SPACE),
+        vec2( 1 * DESIGN_SPACE,    0  ),
     ]);
 }
 
 // ── Ring 6: Tile — mQuad ─────────────────────────────────────
 function motifTile() {
     // Slightly tapered tile that follows the ring curvature
-    mQuad(-0.65, -0.82,  0.65, -0.82,  0.82, 0.82, -0.82, 0.82);
+    mQuad(-0.65 * DESIGN_SPACE, -0.82 * DESIGN_SPACE,  0.65 * DESIGN_SPACE, -0.82 * DESIGN_SPACE,  0.82 * DESIGN_SPACE, 0.82 * DESIGN_SPACE, -0.82 * DESIGN_SPACE, 0.82 * DESIGN_SPACE);
 }
