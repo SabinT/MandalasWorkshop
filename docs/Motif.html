@@ -234,6 +234,30 @@
     .cm  { color: #4a5568; }
     .nm  { color: #68d391; }
 
+    /* ── overview command list ── */
+    .cmd-list {
+      list-style: none;
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .cmd-list li {
+      font-size: 0.83rem;
+    }
+
+    .cmd-list a {
+      font-family: 'Courier New', monospace;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .cmd-list a:hover {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+
     /* ── tip ── */
     .tip {
       margin-top: 1rem;
@@ -291,26 +315,32 @@
         <span class="card-title">Overview</span>
       </div>
       <p>
-        All drawing inside a motif function is done using the <strong>m-prefixed
-        drawing commands</strong> listed below. These commands do <em>not</em> draw
-        immediately — they <strong>capture</strong> a description of the shape, which
-        is then replayed once per ring segment (correctly mapped into polar space)
-        when you call <code>ring()</code>.
+        A <strong>motif</strong> is the repeated element of a mandala — a 2D drawing
+        defined in <strong>motif space</strong> (a square where both x and y go from −1 to +1).
       </p>
       <p>
-        All coordinates are in <strong>easy space</strong>: x ∈ [−1, 1] and
-        y ∈ [−1, 1]. Shapes that extend beyond [−1, 1] will be drawn outside the
-        ring segment boundary — this is intentional and can produce interesting
-        overlapping effects.
+        The functions below are <strong>motif drawing functions</strong>. Unlike regular
+        p5.js drawing functions, they ensure that everything you draw in motif space
+        transforms correctly into the radial sections of your mandala when rendered
+        with <code>ring()</code>.
       </p>
-      <p>
-        Stroke and fill set <em>before</em> calling <code>ring()</code> are applied
-        to every repeated copy of the motif.
-      </p>
+
+      <ul class="cmd-list">
+        <li><a href="#mLine">mLine(x1, y1, x2, y2)</a></li>
+        <li><a href="#mBezier">mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2)</a></li>
+        <li><a href="#mCircle">mCircle(x, y, r)</a></li>
+        <li><a href="#mEllipse">mEllipse(cx, cy, rx, ry)</a></li>
+        <li><a href="#mArc">mArc(cx, cy, r, startAngle, endAngle)</a></li>
+        <li><a href="#mTriangle">mTriangle(x1, y1, x2, y2, x3, y3)</a></li>
+        <li><a href="#mQuad">mQuad(x1, y1, x2, y2, x3, y3, x4, y4)</a></li>
+        <li><a href="#mShape">mShape(points)</a></li>
+        <li><a href="#mPath">mPath(points)</a></li>
+        <li><a href="#mCurve">mCurve(points)</a></li>
+      </ul>
     </div>
 
     <!-- ── mLine ── -->
-    <div class="card">
+    <div class="card" id="mLine">
       <div class="card-header">
         <div class="card-icon">📏</div>
         <span class="card-title">mLine — Straight Line</span>
@@ -334,7 +364,7 @@
     </div>
 
     <!-- ── mBezier ── -->
-    <div class="card">
+    <div class="card" id="mBezier">
       <div class="card-header">
         <div class="card-icon">〰️</div>
         <span class="card-title">mBezier — Cubic Bézier Curve</span>
@@ -362,7 +392,7 @@
     </div>
 
     <!-- ── mCircle ── -->
-    <div class="card">
+    <div class="card" id="mCircle">
       <div class="card-header">
         <div class="card-icon">⭕</div>
         <span class="card-title">mCircle — Circle</span>
@@ -388,7 +418,7 @@
     </div>
 
     <!-- ── mEllipse ── -->
-    <div class="card">
+    <div class="card" id="mEllipse">
       <div class="card-header">
         <div class="card-icon">🥚</div>
         <span class="card-title">mEllipse — Ellipse</span>
@@ -412,7 +442,7 @@
     </div>
 
     <!-- ── mArc ── -->
-    <div class="card">
+    <div class="card" id="mArc">
       <div class="card-header">
         <div class="card-icon">🌙</div>
         <span class="card-title">mArc — Circular Arc</span>
@@ -437,7 +467,7 @@
     </div>
 
     <!-- ── mTriangle ── -->
-    <div class="card">
+    <div class="card" id="mTriangle">
       <div class="card-header">
         <div class="card-icon">🔺</div>
         <span class="card-title">mTriangle — Triangle</span>
@@ -461,7 +491,7 @@
     </div>
 
     <!-- ── mQuad ── -->
-    <div class="card">
+    <div class="card" id="mQuad">
       <div class="card-header">
         <div class="card-icon">🔷</div>
         <span class="card-title">mQuad — Quadrilateral</span>
@@ -486,7 +516,7 @@
     </div>
 
     <!-- ── mShape ── -->
-    <div class="card">
+    <div class="card" id="mShape">
       <div class="card-header">
         <div class="card-icon">🔶</div>
         <span class="card-title">mShape — Closed Polygon</span>
@@ -513,7 +543,7 @@
     </div>
 
     <!-- ── mPath ── -->
-    <div class="card">
+    <div class="card" id="mPath">
       <div class="card-header">
         <div class="card-icon">🖊️</div>
         <span class="card-title">mPath — Open Polyline</span>
@@ -541,7 +571,7 @@
     </div>
 
     <!-- ── mCurve ── -->
-    <div class="card">
+    <div class="card" id="mCurve">
       <div class="card-header">
         <div class="card-icon">🌊</div>
         <span class="card-title">mCurve — Smooth Spline</span>
