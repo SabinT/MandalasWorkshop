@@ -25,14 +25,17 @@ function draw() {
     // Change the arguments to ring() to create different arrangements of your motif.
     // Add more lines like this to arrange more motifs.
     // Change color, thickness, etc before a ring() call to style that ring's motifs.
-    ring({ shape: allCommands, n: 24, r1: 250, r2: 300 });
+    ring({ shape: yourMotif, n: 24, r1: 250, r2: 300 });
+
+    // Try 'offset' and 'gap' parameters to stagger / space out motifs!
+    // ring({ shape: yourMotif, n: 24, r1: 300, r2: 320, offset: 0.5, gapDegrees: 10 });
+
 
     // This block is activated when you enable "Enable Debug Draw" in the UI.
     if (UI.showMotif) {
         // Show isolated motif designs in debug mode.
         // Add more lines like this to preview multiple motifs at once.
-        // showMotif(yourMotif);
-        showMotif(allCommands);
+        showMotif(yourMotif);
     }
 }
 
@@ -43,20 +46,25 @@ function draw() {
  * TODO: Design your motif using mLine, mTriangle, mBox, mQuad,etc.
  */
 function yourMotif() {
-    mLine(-10, 10, 10, 10);
-    mLine(-10, 10, 0, -10);
-    mLine(10, 10, 0, -10);
-}
-
-function allCommands() {
     // This is a reference of all the available motif drawing commands.
     // mLine(-10, -10, 10, 10, 1);
 
-    // mTriangle(-10, -10, 0, 10, 10, -10, 1);
+    mTriangle(-10, 10, 0, -10, 10, 10);
 
+    // Try these other commands as well!
     // mBox(-10, -10, 20, 20, 1);
 
     // mQuad(-10, -10, -5, 10, 5, 10, 10, -10);
 
-    mBezier(-10, -10, -10, -10, 10, 10, 10, -10);
+    // mBezier(-10, -10, -5, 5, 10, -10, 10, 10);
+
+    // mArc(0, 0, 8, 0, 180);
+
+    // mCircle(0, 0, 10);
+
+    // mCircle(0, 0, 10, 6); // Hexagon = circle approximated with 6 points!
+
+    // mDot(0, 0, 10);
+
+    // mEllipse(0, 0, 5, 10);
 }

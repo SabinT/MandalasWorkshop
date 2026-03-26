@@ -73,6 +73,35 @@ function demoBox() {
     mBox(-s, -s, 2 * s, 2 * s);
 }
 
+function allCommands() {
+    // This is a reference of all the available motif drawing commands.
+    // mLine(-10, -10, 10, 10, 1);
+
+    // mTriangle(-10, -10, 0, 10, 10, -10, 1);
+
+    // mBox(-10, -10, 20, 20, 1);
+
+    // mQuad(-10, -10, -5, 10, 5, 10, 10, -10);
+
+    // mBezier(-10, -10, -5, 5, 10, -10, 10, 10);
+
+    // let points = [];
+    // points.push(vec2(-10, -10));
+    // points.push(vec2(0, 10));
+    // points.push(vec2(10, -10));
+    // mCurve(points);
+    // mPath(points);
+    // mShape(points);
+
+    // mArc(0, 0, 8, 0, 180);
+
+    // mCircle(0, 0, 10, 6);
+
+    // mDot(0, 0, 10);
+
+    // mEllipse(0, 0, 5, 10);
+}
+
 /**
  * Draw a complete demo mandala showcasing all demo motifs.
  * Call this from draw() instead of individual ring() calls.
