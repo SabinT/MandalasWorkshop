@@ -4,8 +4,8 @@
 //
 // Coordinate convention for motif ("easy space"):
 //   x ∈ [-s, s]  →  angular position within one ring segment
-//   y ∈ [-s, s]  →  radial position: -s = inner radius, +s = outer radius
-//   s defaults to 1. Call setDesignSpace(s) to change it.
+//   y ∈ [-s, s]  →  radial position: -s = outer radius, +s = inner radius
+//   s defaults to 1. Call setMotifSize(s) to change it.
 //
 // All mXxx() drawing functions record parametric curve objects
 // (LineCurve, BezierCurve, CircleCurve from curves.js) that are
@@ -25,11 +25,11 @@ let _designSpaceSize = 1;
 
 /**
  * Set the design-space half-extent.
- * setDesignSpace(100) means motif coordinates run from -100 to 100 on both axes.
+ * setMotifSize(100) means motif coordinates run from -100 to 100 on both axes.
  * The showMotif() grid labels and all ring mappings update automatically.
  * @param {number} size  Half-extent (default 1).
  */
-function setDesignSpace(size) {
+function setMotifSize(size) {
     _designSpaceSize = size;
 }
 
@@ -39,7 +39,7 @@ function setDesignSpace(size) {
 
 /**
  * Draw a line in motif ("easy") space.
- * Coordinates are in [-s, s] where s is set by setDesignSpace() (default 1).
+ * Coordinates are in [-s, s] where s is set by setMotifSize() (default 1).
  */
 function mLine(x1, y1, x2, y2) {
     _pushCommand(new LineCurve(x1, y1, x2, y2));
@@ -187,6 +187,21 @@ function mDot(x, y, r) {
     } else {
         _commands.push({ type: 'dot', x, y, r });
     }
+}
+
+/**
+ * Draw an axis-aligned rectangle (box) in motif space.
+ * Fill is respected because the shape is closed.
+ *
+ * @param {number} x  Left edge x.
+ * @param {number} y  Top edge y.
+ * @param {number} w  Width.
+ * @param {number} h  Height.
+ */
+function mBox(x, y, w, h) {
+    const x2 = x + w;
+    const y2 = y + h;
+    _pushCommand(new PolyCurve([vec2(x, y), vec2(x2, y), vec2(x2, y2), vec2(x, y2)], true));
 }
 
 // ------------------------------------------------------------
@@ -361,8 +376,8 @@ function _mfApply(m, x, y) {
 /**
  * Map a motif-space point (x,y) into canvas coordinates inside one ring segment.
  *
- * @param {number} x        Motif-space x (range set by setDesignSpace, default [-1, 1]).
- * @param {number} y        Motif-space y (range set by setDesignSpace, default [-1, 1]).
+ * @param {number} x        Motif-space x (range set by setMotifSize, default [-1, 1]).
+ * @param {number} y        Motif-space y (range set by setMotifSize, default [-1, 1]).
  * @param {number} aCenter  Center angle of this segment (radians).
  * @param {number} aStep    Angular width of one segment (radians).
  * @param {number} r1       Inner radius.
@@ -372,7 +387,7 @@ function _mfApply(m, x, y) {
 function mapToRing(x, y, aCenter, aStep, r1, r2) {
     const ds = _designSpaceSize;
     const angle = aCenter + map(x, -ds, ds, -0.5 * aStep, 0.5 * aStep);
-    const radius = map(y, -ds, ds, r1, r2);
+    const radius = map(y, -ds, ds, r2, r1);
     return vec2(radius * Math.cos(angle), radius * Math.sin(angle));
 }
 

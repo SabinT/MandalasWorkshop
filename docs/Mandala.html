@@ -299,7 +299,7 @@
         Every repetition is automatically rotated and mapped from the flat
         motif space grid (x ∈ [−S, S], y ∈ [−S, S]) into its correct
         position in polar coordinates on the canvas. The size S defaults to 1 and can be
-        changed with <code>setDesignSpace(S)</code>.
+        changed with <code>setMotifSize(S)</code>.
       </p>
     </div>
 
@@ -386,9 +386,9 @@
       <p>
         Motifs are designed in a square called <strong>motif space</strong>:
         both <em>x</em> and <em>y</em> range from −S to +S, where S is the
-        design-space size (default 1). Call <code>setDesignSpace(S)</code>
+        design-space size (default 1). Call <code>setMotifSize(S)</code>
         in <code>setup()</code> to use a different scale — for example
-        <code>setDesignSpace(100)</code> lets you work in a −100 to 100 range.
+        <code>setMotifSize(100)</code> lets you work in a −100 to 100 range.
       </p>
       <p>
         When <code>ring()</code> maps a motif into a ring segment the axes have
@@ -430,11 +430,11 @@
       </div>
     </div>
 
-    <!-- ── setDesignSpace() ── -->
+    <!-- ── setMotifSize() ── -->
     <div class="card">
       <div class="card-header">
         <div class="card-icon">📏</div>
-        <span class="card-title">setDesignSpace( size )</span>
+        <span class="card-title">setMotifSize( size )</span>
       </div>
 
       <p>
@@ -442,7 +442,7 @@
         drawing functions. Call this once in <code>setup()</code> before drawing.
       </p>
 
-      <code class="fn-sig">setDesignSpace(size)</code>
+      <code class="fn-sig">setMotifSize(size)</code>
 
       <table class="param-table">
         <thead>
@@ -467,11 +467,11 @@
 
       <div class="example">
         <p class="example-label">Example — working in a −100 to 100 coordinate space</p>
-        <pre><span class="kw">const</span> DESIGN_SPACE = <span class="nm">100</span>;
+        <pre><span class="kw">const</span> MOTIF_SIZE = <span class="nm">100</span>;
 
 <span class="kw">function</span> <span class="fn">setup</span>() {
   <span class="fn">createCanvas</span>(<span class="nm">1000</span>, <span class="nm">1000</span>);
-  <span class="fn">setDesignSpace</span>(DESIGN_SPACE);  <span class="cm">// motif coords now range -100 to 100</span>
+  <span class="fn">setMotifSize</span>(MOTIF_SIZE);  <span class="cm">// motif coords now range -100 to 100</span>
 }
 
 <span class="kw">function</span> <span class="fn">motifLeaf</span>() {

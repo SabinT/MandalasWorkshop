@@ -33,7 +33,7 @@ MandalasWorkshop/
 │   │                      Each exposes evaluate(t)→vec2, divisions, closed
 │   ├── mandala.js       Ring / polar-mapping logic (requires p5.js globals):
 │   │                      ring({ shape, n, r1, r2 })
-│   │                      setDesignSpace(size) — set motif-space half-extent (default 1)
+│   │                      setMotifSize(size) — set motif-space half-extent (default 1)
 │   │                      mLine, mBezier, mCircle  — motif drawing commands
 │   │                      drawPolarGrid(n, r1, r2) — debug polar grid
 │   │                      showMotif(motifFn) — interactive motif debugger:
@@ -64,7 +64,7 @@ MandalasWorkshop/
 
 ### Motif Space
 Motifs are designed in a configurable square: **x ∈ [−S, S], y ∈ [−S, S]** where
-S is set by `setDesignSpace(S)` (default 1; workshop uses 100).
+S is set by `setMotifSize(S)` (default 1; workshop uses 100).
 - **x** maps to *angular* position within one ring segment.
 - **y** maps to *radial* position: −S = inner radius, +S = outer radius.
 
@@ -109,14 +109,14 @@ The `docs/` folder contains HTML reference pages for the workshop:
 - `docs/index.html` — landing/setup page with a **Docs toolbar** linking to the reference pages.
 - `docs/Motif.html` — reference for all motif-space drawing functions (`mLine`, `mBezier`,
   `mCircle`, `mEllipse`, `mArc`, `mTriangle`, `mQuad`, `mShape`, `mPath`, `mCurve`).
-- `docs/Mandala.html` — reference for the `ring()` function, `setDesignSpace()`, and the motif-space coordinate system.
+- `docs/Mandala.html` — reference for the `ring()` function, `setMotifSize()`, and the motif-space coordinate system.
 
 **Keep documentation in sync with the code.**  Whenever you:
 - Add, remove, or change a **motif-space drawing function** (`mLine`, `mBezier`, `mCircle`,
   `mTriangle`, `mQuad`, `mShape`, `mPath`, `mArc`, `mEllipse`, `mCurve`, or any future
   `mXxx` function in `library/mandala.js`), update **`docs/Motif.html`** to reflect the
   change (add / remove / edit the corresponding card).
-- Add, remove, or change **parameters of `ring()`** or **`setDesignSpace()`** in
+- Add, remove, or change **parameters of `ring()`** or **`setMotifSize()`** in
   `library/mandala.js`, update **`docs/Mandala.html`** to reflect the change.
 - Add, remove, or change the **docs toolbar buttons** in `docs/index.html` when new doc
   pages are added or removed.
@@ -138,7 +138,7 @@ The `docs/` folder contains HTML reference pages for the workshop:
 
 | Library | Version  | How loaded |
 |---------|----------|------------|
-| p5.js   | 2.3.2    | Local `<script>` in `index.html` (`library/p5.min.2.3.2.js`) |
+| p5.js   | 1.11.11    | Local `<script>` in `index.html` (`library/p5.min-1.11.11.js`) |
 
 No build step, no npm, no bundler — plain JS files loaded in order by the
 browser.

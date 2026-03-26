@@ -332,7 +332,7 @@
       <p>
         A <strong>motif</strong> is the repeated element of a mandala — a 2D drawing
         defined in <strong>motif space</strong> (a square where both x and y run from −S to +S,
-        where S is set by <code>setDesignSpace()</code> — default 1).
+        where S is set by <code>setMotifSize()</code> — default 1).
       </p>
       <p>
         The functions below are <strong>motif drawing functions</strong>. Unlike regular
@@ -513,7 +513,7 @@
       <div class="example">
         <p class="example-label">Example — a smile-shaped arc (degrees)</p>
         <pre><span class="kw">function</span> <span class="fn">motifSmile</span>() {
-  <span class="fn">mArc</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.5</span> * DESIGN_SPACE, <span class="nm">0</span>, <span class="nm">180</span>);  <span class="cm">// 0° to 180° in DEGREES mode</span>
+  <span class="fn">mArc</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.5</span> * MOTIF_SIZE, <span class="nm">0</span>, <span class="nm">180</span>);  <span class="cm">// 0° to 180° in DEGREES mode</span>
 }</pre>
       </div>
       <a class="back-to-top" href="#top">[back to top]</a>
