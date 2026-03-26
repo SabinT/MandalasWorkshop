@@ -9,7 +9,7 @@
 
 A p5.js starter project for a creative-coding workshop. Students radially
 repeat decorative motifs (shapes) in polar space while designing them in a
-configurable "easy space" coordinate system (−S to S, default −1 to 1).
+configurable "motif space" coordinate system (−S to S, default −1 to 1).
 
 ---
 
@@ -33,7 +33,7 @@ MandalasWorkshop/
 │   │                      Each exposes evaluate(t)→vec2, divisions, closed
 │   ├── mandala.js       Ring / polar-mapping logic (requires p5.js globals):
 │   │                      ring({ shape, n, r1, r2 })
-│   │                      setDesignSpace(size) — set easy-space half-extent (default 1)
+│   │                      setDesignSpace(size) — set motif-space half-extent (default 1)
 │   │                      mLine, mBezier, mCircle  — motif drawing commands
 │   │                      drawPolarGrid(n, r1, r2) — debug polar grid
 │   │                      showMotif(motifFn) — interactive motif debugger:
@@ -50,7 +50,7 @@ MandalasWorkshop/
 │   └── p5.min-1.11.11.js  p5.js library (local, minified).
 ├── docs/
 │   ├── index.html       Workshop landing/setup page with a Docs toolbar.
-│   ├── Mandala.html     Reference: ring() function and easy-space coordinate system.
+│   ├── Mandala.html     Reference: ring() function and motif-space coordinate system.
 │   └── Motif.html       Reference: all motif-space drawing functions (mLine, etc.).
 ├── .vscode/
 │   └── extensions.json  Recommends the "Live Server" extension (ritwickdey).
@@ -62,7 +62,7 @@ MandalasWorkshop/
 
 ## Key Concepts
 
-### Easy Space
+### Motif Space
 Motifs are designed in a configurable square: **x ∈ [−S, S], y ∈ [−S, S]** where
 S is set by `setDesignSpace(S)` (default 1; workshop uses 100).
 - **x** maps to *angular* position within one ring segment.
@@ -109,7 +109,7 @@ The `docs/` folder contains HTML reference pages for the workshop:
 - `docs/index.html` — landing/setup page with a **Docs toolbar** linking to the reference pages.
 - `docs/Motif.html` — reference for all motif-space drawing functions (`mLine`, `mBezier`,
   `mCircle`, `mEllipse`, `mArc`, `mTriangle`, `mQuad`, `mShape`, `mPath`, `mCurve`).
-- `docs/Mandala.html` — reference for the `ring()` function, `setDesignSpace()`, and the easy-space coordinate system.
+- `docs/Mandala.html` — reference for the `ring()` function, `setDesignSpace()`, and the motif-space coordinate system.
 
 **Keep documentation in sync with the code.**  Whenever you:
 - Add, remove, or change a **motif-space drawing function** (`mLine`, `mBezier`, `mCircle`,

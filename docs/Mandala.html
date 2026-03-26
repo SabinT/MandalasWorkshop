@@ -293,12 +293,12 @@
       </div>
       <p>
         The <code>ring()</code> function is the core tool for creating mandala patterns.
-        It takes a motif — a small drawing described in a simple "easy space" coordinate
-        system — and repeats it <em>n</em> times evenly around a circular ring.
+        It takes a motif — a small drawing described in <strong>motif space</strong> —
+        and repeats it <em>n</em> times evenly around a circular ring.
       </p>
       <p>
         Every repetition is automatically rotated and mapped from the flat
-        <strong>easy space</strong> grid (x ∈ [−S, S], y ∈ [−S, S]) into its correct
+        motif space grid (x ∈ [−S, S], y ∈ [−S, S]) into its correct
         position in polar coordinates on the canvas. The size S defaults to 1 and can be
         changed with <code>setDesignSpace(S)</code>.
       </p>
@@ -378,14 +378,14 @@
       </div>
     </div>
 
-    <!-- ── Easy Space ── -->
+    <!-- ── Motif Space ── -->
     <div class="card">
       <div class="card-header">
         <div class="card-icon">📐</div>
-        <span class="card-title">Easy Space (Motif Coordinate System)</span>
+        <span class="card-title">Motif Space (Coordinate System)</span>
       </div>
       <p>
-        Motifs are designed in a square called <strong>easy space</strong>:
+        Motifs are designed in a square called <strong>motif space</strong>:
         both <em>x</em> and <em>y</em> range from −S to +S, where S is the
         design-space size (default 1). Call <code>setDesignSpace(S)</code>
         in <code>setup()</code> to use a different scale — for example
@@ -427,7 +427,7 @@
 
       <div class="tip">
         💡 Use <code>showMotif(myMotifFn)</code> to preview your motif in an interactive
-        debugger that shows the easy-space grid with axis labels, zoom, and pan.
+        debugger that shows the motif-space grid with axis labels, zoom, and pan.
       </div>
     </div>
 
@@ -439,7 +439,7 @@
       </div>
 
       <p>
-        Sets the half-extent of the easy-space coordinate system used by all motif
+        Sets the half-extent of the motif-space coordinate system used by all motif
         drawing functions. Call this once in <code>setup()</code> before drawing.
       </p>
 
