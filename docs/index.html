@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drawing Mandalas with Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e0e14;
+      --surface:   #16161f;
+      --border:    #2a2a3a;
+      --accent:    #c084fc;
+      --accent2:   #818cf8;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+      --tag-bg:    #1e1e2e;
+      --radius:    10px;
+      --gap:       1.25rem;
+    }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem 3rem;
+    }
+
+    /* ── header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .workshop-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      font-weight: 400;
+    }
+
+    /* ── layout ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: var(--gap);
+      width: 100%;
+      max-width: 860px;
+    }
+
+    /* ── card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.5rem 1.75rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .card-icon.online  { background: #2d1b4e; }
+    .card-icon.local   { background: #1a1f3a; }
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── steps ── */
+    ol {
+      list-style: none;
+      counter-reset: steps;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    ol > li {
+      counter-increment: steps;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      font-size: 0.83rem;
+      line-height: 1.6;
+    }
+
+    ol > li::before {
+      content: counter(steps);
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* each li wraps its prose in a <span> so it forms one flex item */
+    ol > li > span {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ── inline code / kbd tags ── */
+    kbd, code {
+      font-family: 'Raleway', sans-serif;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* block-style command — sits on its own line and wraps gracefully */
+    code.block {
+      display: block;
+      margin-top: 0.5rem;
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      padding: 0.4rem 0.6rem;
+    }
+
+    a {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    /* ── nested options list ── */
+    .options {
+      margin: 0.5rem 0 0 0;
+      padding-left: 1rem;
+      list-style: disc;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .options li {
+      font-size: 0.78rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* ── status bar screenshot ── */
+    .status-bar-img {
+      display: block;
+      margin-top: 0.5rem;
+      max-width: 100%;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── note / tip ── */
+    .tip {
+      margin-top: 1rem;
+      padding: 0.65rem 0.9rem;
+      background: #111827;
+      border-left: 3px solid var(--accent2);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── additional materials ── */
+    .materials {
+      margin-top: var(--gap);
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .materials-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.65rem 1.4rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .materials-link:hover {
+      background: #1e1e2e;
+      border-color: var(--accent2);
+      text-decoration: none;
+    }
+
+    .materials-link .dl-icon {
+      font-size: 1rem;
+    }
+
+    /* ── footer ── */
+    footer {
+      margin-top: 2.25rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p class="workshop-label">Workshop</p>
+    <h1>Drawing Mandalas with Code</h1>
+    <p class="subtitle">Choose the setup that works best for you</p>
+  </header>
+
+  <div class="cards">
+
+    <!-- ── Online (p5js editor) ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon online">🌐</div>
+        <span class="card-title">Online — p5.js Editor</span>
+      </div>
+      <ol>
+        <li><span>
+          Go to <a href="https://editor.p5js.org" target="_blank" rel="noopener">editor.p5js.org</a>.
+          Sign in, or create a free account if you don't have one.
+        </span></li>
+        <li><span>
+          Open the starter sketch:
+          <a href="https://editor.p5js.org/SabinT/sketches/MandalasWorkshop" target="_blank" rel="noopener"
+             aria-label="Open starter sketch: editor.p5js.org, SabinT, MandalasWorkshop (opens in new tab)">
+            editor.p5js.org / SabinT / MandalasWorkshop
+          </a>.
+        </span></li>
+        <li><span>
+          Duplicate it to your account:
+          <kbd>File</kbd> → <kbd>Duplicate</kbd>
+        </span></li>
+        <li><span>
+          Rename your copy: click the <strong><span aria-label="pencil (edit) icon">✏️</span> pencil icon</strong> next to the sketch title,
+          type a new name, then press <kbd>Enter</kbd>.
+        </span></li>
+        <li><span>
+          Save: <kbd>File</kbd> → <kbd>Save</kbd> &nbsp;or&nbsp; <kbd>Ctrl S</kbd> / <kbd>⌘ S</kbd>
+        </span></li>
+        <li><span>
+          Edit <code>motifCustom()</code> in <code>sketch.js</code> to design your mandala,
+          then click <kbd>▶ Run</kbd> to preview.
+        </span></li>
+      </ol>
+    </div>
+
+    <!-- ── Local (VS Code) ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon local">💻</div>
+        <span class="card-title">Local — VS Code</span>
+      </div>
+      <ol>
+        <li><span>
+          Install <a href="https://code.visualstudio.com" target="_blank" rel="noopener">VS Code</a> if you haven't already.
+        </span></li>
+        <li><span>
+          Get the project files — pick one option:
+          <ul class="options">
+            <li>
+              <strong>Git (recommended):</strong> install <a href="https://git-scm.com" target="_blank" rel="noopener">Git</a>, then run:
+              <code class="block">git clone https://github.com/SabinT/MandalasWorkshop.git</code>
+            </li>
+            <li>
+              <strong>ZIP:</strong> <a href="https://github.com/SabinT/MandalasWorkshop/archive/refs/heads/main.zip" target="_blank" rel="noopener">Download the project .zip</a>,
+              then extract it.
+            </li>
+          </ul>
+        </span></li>
+        <li><span>
+          Open the folder in VS Code:
+          <kbd>File</kbd> → <kbd>Open Folder…</kbd> → select <code>MandalasWorkshop</code>
+        </span></li>
+        <li><span>
+          Install the <strong>Live Server</strong> extension
+          (<code>ritwickdey.LiveServer</code>) from the Extensions panel, or accept the prompt
+          when VS Code offers it automatically.
+        </span></li>
+        <li><span>
+          Click the <strong>Go Live</strong> button <img src="https://github.com/user-attachments/assets/5fc1f383-8fa2-40fb-b053-ea9f83166d00" alt="Go Live button in VS Code status bar" class="status-bar-img"> in the bottom-right corner of VS Code's status bar. Your browser will open the sketch.
+        </span></li>
+        <li><span>
+          Edit <code>sketch.js</code> and save — the browser refreshes automatically.
+        </span></li>
+      </ol>
+      <p class="tip">
+        💡 All files are plain JS — no build step, no npm required.
+        The p5.js library is bundled locally in <code>library/</code>.
+      </p>
+    </div>
+
+  </div>
+
+  <div class="materials">
+    <a class="materials-link"
+       href="https://drive.google.com/drive/folders/1lybZyAM4XaRwzCVEKXG8uUO8HZuhcIr4?usp=sharing"
+       target="_blank" rel="noopener"
+       aria-label="Download additional workshop materials (opens Google Drive in new tab)">
+      <span class="dl-icon">📦</span>
+      Additional Materials
+    </a>
+  </div>
+
+  <footer>Drawing Mandalas with Code · p5.js Workshop</footer>
+
+</body>
+</html>
