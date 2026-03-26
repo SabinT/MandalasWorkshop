@@ -15,6 +15,11 @@
 /** @type {Array<LineCurve|BezierCurve|CircleCurve|PolyCurve|ArcCurve|EllipseCurve|CatmullRomCurve>} Captured curves for the current motif. */
 let _commands = [];
 
+/** Capture-time motif transform state (translate/rotate/scale within motif functions). */
+let _isCapturingMotif = false;
+let _motifMatrix = _mfIdentity();
+let _motifStack = [];
+
 /** Half-extent of the design (motif) space. Default 1 → [-1, 1] × [-1, 1]. */
 let _designSpaceSize = 1;
 
@@ -37,7 +42,7 @@ function setDesignSpace(size) {
  * Coordinates are in [-s, s] where s is set by setDesignSpace() (default 1).
  */
 function mLine(x1, y1, x2, y2) {
-    _commands.push(new LineCurve(x1, y1, x2, y2));
+    _pushCommand(new LineCurve(x1, y1, x2, y2));
 }
 
 /**
@@ -45,7 +50,7 @@ function mLine(x1, y1, x2, y2) {
  * The circle is approximated with vertices so it deforms correctly in polar space.
  */
 function mCircle(x, y, r) {
-    _commands.push(new CircleCurve(x, y, r));
+    _pushCommand(new CircleCurve(x, y, r));
 }
 
 /**
@@ -53,7 +58,7 @@ function mCircle(x, y, r) {
  * Arguments match p5.js bezier(): anchor1, control1, control2, anchor2
  */
 function mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
-    _commands.push(new BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2));
+    _pushCommand(new BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2));
 }
 
 /**
@@ -68,7 +73,7 @@ function mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
  * @param {number} y3  Vertex 3 y
  */
 function mTriangle(x1, y1, x2, y2, x3, y3) {
-    _commands.push(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3)], true));
+    _pushCommand(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3)], true));
 }
 
 /**
@@ -86,7 +91,7 @@ function mTriangle(x1, y1, x2, y2, x3, y3) {
  * @param {number} y4  Vertex 4 y
  */
 function mQuad(x1, y1, x2, y2, x3, y3, x4, y4) {
-    _commands.push(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3), vec2(x4, y4)], true));
+    _pushCommand(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3), vec2(x4, y4)], true));
 }
 
 /**
@@ -96,7 +101,7 @@ function mQuad(x1, y1, x2, y2, x3, y3, x4, y4) {
  * @param {Array<{x:number,y:number}>} points  Vertices in motif space.
  */
 function mShape(points) {
-    _commands.push(new PolyCurve(points, true));
+    _pushCommand(new PolyCurve(points, true));
 }
 
 /**
@@ -105,7 +110,7 @@ function mShape(points) {
  * @param {Array<{x:number,y:number}>} points  Vertices in motif space.
  */
 function mPath(points) {
-    _commands.push(new PolyCurve(points, false));
+    _pushCommand(new PolyCurve(points, false));
 }
 
 /**
@@ -118,7 +123,7 @@ function mPath(points) {
  * @param {number} endAngle    End angle in the sketch's current angleMode.
  */
 function mArc(cx, cy, r, startAngle, endAngle) {
-    _commands.push(new ArcCurve(cx, cy, r, _toRadians(startAngle), _toRadians(endAngle)));
+    _pushCommand(new ArcCurve(cx, cy, r, _toRadians(startAngle), _toRadians(endAngle)));
 }
 
 /** Convert an angle from the sketch's current angleMode to radians. */
@@ -136,7 +141,7 @@ function _toRadians(a) {
  * @param {number} ry  Vertical radius.
  */
 function mEllipse(cx, cy, rx, ry) {
-    _commands.push(new EllipseCurve(cx, cy, rx, ry));
+    _pushCommand(new EllipseCurve(cx, cy, rx, ry));
 }
 
 /**
@@ -145,7 +150,7 @@ function mEllipse(cx, cy, rx, ry) {
  * @param {Array<{x:number,y:number}>} points  Control points in motif space.
  */
 function mCurve(points) {
-    _commands.push(new CatmullRomCurve(points));
+    _pushCommand(new CatmullRomCurve(points));
 }
 
 // ------------------------------------------------------------
@@ -182,8 +187,122 @@ function ring({ shape, n, r1, r2 }) {
  */
 function captureMotif(shapeFn) {
     _commands = [];
-    shapeFn();
+    _captureWithMotifTransforms(shapeFn);
     return _commands;
+}
+
+/** Push a curve command, applying the current motif transform when capturing. */
+function _pushCommand(cmd) {
+    if (_isCapturingMotif) {
+        _commands.push(new TransformedCurve(cmd, _mfClone(_motifMatrix)));
+    } else {
+        _commands.push(cmd);
+    }
+}
+
+/** Execute motif code with local transform shims for translate/rotate/scale/push/pop/resetMatrix. */
+function _captureWithMotifTransforms(shapeFn) {
+    _isCapturingMotif = true;
+    _motifMatrix = _mfIdentity();
+    _motifStack = [];
+
+    const prevTranslate = globalThis.translate;
+    const prevRotate = globalThis.rotate;
+    const prevScale = globalThis.scale;
+    const prevPush = globalThis.push;
+    const prevPop = globalThis.pop;
+    const prevResetMatrix = globalThis.resetMatrix;
+
+    globalThis.translate = function (tx, ty = 0) {
+        _motifMatrix = _mfMultiply(_motifMatrix, _mfTranslate(tx, ty));
+    };
+    globalThis.rotate = function (a) {
+        _motifMatrix = _mfMultiply(_motifMatrix, _mfRotate(_toRadians(a)));
+    };
+    globalThis.scale = function (sx, sy) {
+        const syResolved = (typeof sy === 'number') ? sy : sx;
+        _motifMatrix = _mfMultiply(_motifMatrix, _mfScale(sx, syResolved));
+    };
+    globalThis.push = function () {
+        _motifStack.push(_mfClone(_motifMatrix));
+    };
+    globalThis.pop = function () {
+        if (_motifStack.length > 0) {
+            _motifMatrix = _motifStack.pop();
+        }
+    };
+    globalThis.resetMatrix = function () {
+        _motifMatrix = _mfIdentity();
+    };
+
+    try {
+        shapeFn();
+    } finally {
+        globalThis.translate = prevTranslate;
+        globalThis.rotate = prevRotate;
+        globalThis.scale = prevScale;
+        globalThis.push = prevPush;
+        globalThis.pop = prevPop;
+        globalThis.resetMatrix = prevResetMatrix;
+        _isCapturingMotif = false;
+        _motifMatrix = _mfIdentity();
+        _motifStack = [];
+    }
+}
+
+/** Curve wrapper that evaluates the base curve, then applies an affine transform. */
+function TransformedCurve(base, matrix) {
+    this.divisions = base.divisions;
+    this.closed = base.closed;
+    this.evaluate = function (t) {
+        const p = base.evaluate(t);
+        return _mfApply(matrix, p.x, p.y);
+    };
+}
+
+/** @returns {{a:number,b:number,c:number,d:number,e:number,f:number}} */
+function _mfIdentity() {
+    return { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+}
+
+/** @param {{a:number,b:number,c:number,d:number,e:number,f:number}} m */
+function _mfClone(m) {
+    return { a: m.a, b: m.b, c: m.c, d: m.d, e: m.e, f: m.f };
+}
+
+/**
+ * Multiply two 2D affine transforms (m1 × m2), represented as:
+ * [a c e]
+ * [b d f]
+ * [0 0 1]
+ */
+function _mfMultiply(m1, m2) {
+    return {
+        a: m1.a * m2.a + m1.c * m2.b,
+        b: m1.b * m2.a + m1.d * m2.b,
+        c: m1.a * m2.c + m1.c * m2.d,
+        d: m1.b * m2.c + m1.d * m2.d,
+        e: m1.a * m2.e + m1.c * m2.f + m1.e,
+        f: m1.b * m2.e + m1.d * m2.f + m1.f,
+    };
+}
+
+function _mfTranslate(tx, ty) {
+    return { a: 1, b: 0, c: 0, d: 1, e: tx, f: ty };
+}
+
+function _mfRotate(aRadians) {
+    const c = Math.cos(aRadians);
+    const s = Math.sin(aRadians);
+    return { a: c, b: s, c: -s, d: c, e: 0, f: 0 };
+}
+
+function _mfScale(sx, sy) {
+    return { a: sx, b: 0, c: 0, d: sy, e: 0, f: 0 };
+}
+
+function _mfApply(m, x, y) {
+    return vec2(m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f);
 }
 
 /**
