@@ -133,8 +133,7 @@
     .card-title {
       font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      letter-spacing: 0.04em;
       color: var(--muted);
     }
 
@@ -285,6 +284,22 @@
     a { color: var(--accent2); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
+    /* ── back to top ── */
+    .back-to-top {
+      display: block;
+      margin-top: 1.25rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: right;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+
+    .back-to-top:hover {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+
     /* ── footer ── */
     footer {
       margin-top: 2.25rem;
@@ -294,7 +309,7 @@
     }
   </style>
 </head>
-<body>
+<body id="top">
 
   <nav class="top-nav">
     <a class="back-btn" href="index.html">← Back to Home</a>
@@ -338,6 +353,7 @@
         <li><a href="#mPath">mPath(points)</a></li>
         <li><a href="#mCurve">mCurve(points)</a></li>
       </ul>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mLine ── -->
@@ -362,6 +378,7 @@
   <span class="fn">mLine</span>( <span class="nm">0</span>, -<span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">1</span>);  <span class="cm">// vertical bar</span>
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mBezier ── -->
@@ -390,6 +407,7 @@
   <span class="fn">mBezier</span>(<span class="nm">0</span>, -<span class="nm">1</span>,   <span class="nm">0.8</span>, -<span class="nm">0.2</span>,   <span class="nm">0.6</span>, <span class="nm">0.8</span>,  <span class="nm">0</span>, <span class="nm">1</span>);
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mCircle ── -->
@@ -416,6 +434,7 @@
   <span class="fn">mCircle</span>(<span class="nm">0</span>, <span class="nm">0.7</span>, <span class="nm">0.15</span>);  <span class="cm">// near the outer edge</span>
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mEllipse ── -->
@@ -440,6 +459,7 @@
   <span class="fn">mEllipse</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.3</span>, <span class="nm">0.6</span>);  <span class="cm">// tall oval centred in the segment</span>
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mArc ── -->
@@ -465,6 +485,7 @@
   <span class="fn">mArc</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.5</span> * DESIGN_SPACE, <span class="nm">0</span>, <span class="nm">180</span>);  <span class="cm">// 0° to 180° in DEGREES mode</span>
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mTriangle ── -->
@@ -489,6 +510,7 @@
   <span class="fn">mTriangle</span>(<span class="nm">0</span>, -<span class="nm">0.8</span>,  -<span class="nm">0.4</span>, <span class="nm">0.4</span>,  <span class="nm">0.4</span>, <span class="nm">0.4</span>);
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mQuad ── -->
@@ -514,6 +536,7 @@
   <span class="fn">mQuad</span>(<span class="nm">0</span>, -<span class="nm">0.9</span>,  <span class="nm">0.4</span>, <span class="nm">0</span>,  <span class="nm">0</span>, <span class="nm">0.9</span>,  -<span class="nm">0.4</span>, <span class="nm">0</span>);
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mShape ── -->
@@ -541,6 +564,7 @@
   <span class="fn">mShape</span>(pts);
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mPath ── -->
@@ -569,6 +593,7 @@
   ]);
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── mCurve ── -->
@@ -597,6 +622,7 @@
   ]);
 }</pre>
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
     <!-- ── Stroke & Fill ── -->
@@ -634,6 +660,7 @@
         💡 Call <code>push()</code> and <code>pop()</code> around each <code>ring()</code>
         call if you want to isolate stroke/fill settings for different rings.
       </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
   </div>
