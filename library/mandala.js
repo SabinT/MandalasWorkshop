@@ -256,7 +256,7 @@ let _smLastFrame   = -1;      // frameCount when background was last cleared
 let _smActive      = false;   // true once showMotif() has been called
 
 /**
- * Preview / debug a motif function in an interactive fullscreen view.
+ * Preview / debug a motif function on the current canvas.
  *
  * - Shared sketch background color with a faint coordinate grid (4 major / 8 minor divisions).
  * - Faint border outlining the [-1, 1] × [-1, 1] drawing space.
@@ -270,11 +270,8 @@ let _smActive      = false;   // true once showMotif() has been called
  */
 function showMotif(motifFn) {
     _smActive = true;
-    if (width !== windowWidth || height !== windowHeight) {
-        resizeCanvas(windowWidth, windowHeight);
-    }
 
-    // First call this frame → black background + coordinate grid
+    // First call this frame → shared background + coordinate grid
     if (frameCount !== _smLastFrame) {
         _smLastFrame = frameCount;
         push();
@@ -549,6 +546,4 @@ function mouseDragged() {
     }
 }
 
-function windowResized() {
-    if (_smActive) resizeCanvas(windowWidth, windowHeight);
-}
+function windowResized() {}

@@ -15,10 +15,15 @@
 // Change this one value to update both the full mandala view and showMotif().
 // You can use grayscale numbers like 255 or hex colors like "#ffffff".
 const MANDALA_BG = "#accbbc";
+const CANVAS_SIZE = 1000;
+const UI = new WorkshopSketchUI();
+
 globalThis.MANDALA_BG = MANDALA_BG;
 
 function setup() {
-    createCanvas(1000, 1000);
+    const canvas = createCanvas(CANVAS_SIZE, CANVAS_SIZE);
+    UI.attachCanvas(canvas);
+
     angleMode(RADIANS);
 }
 
@@ -59,8 +64,10 @@ function draw() {
     fill("rgba(255, 200, 0, 0.5)");
     ring({ shape: motifTile,    n: 16, r1: 460, r2: 490 });
 
-    // showMotif(motifPetal);
-    // showMotif(motifStar);
+    if (UI.isDebugDrawEnabled()) {
+        showMotif(motifPetal);
+        showMotif(motifStar);
+    }
 }
 
 // ── Ring 1: Leaf — mLine, mBezier, mCircle ───────────────────
@@ -91,6 +98,7 @@ function motifFeather() {
 
 // ── Ring 3: Petal — mEllipse, mPath ──────────────────────────
 function motifPetal() {
+    rotate(-PI / 6);
     // Tall ellipse petal
     mEllipse(0, 0, 0.52, 0.52);
     // Decorative vein running through the petal
