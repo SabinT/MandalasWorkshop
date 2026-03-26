@@ -194,6 +194,41 @@
       line-height: 1.5;
     }
 
+    /* ── additional materials ── */
+    .materials {
+      margin-top: var(--gap);
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .materials-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.65rem 1.4rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .materials-link:hover {
+      background: #1e1e2e;
+      border-color: var(--accent2);
+      text-decoration: none;
+    }
+
+    .materials-link .dl-icon {
+      font-size: 1rem;
+    }
+
     /* ── footer ── */
     footer {
       margin-top: 2.25rem;
@@ -287,6 +322,16 @@
       </p>
     </div>
 
+  </div>
+
+  <div class="materials">
+    <a class="materials-link"
+       href="https://drive.google.com/drive/folders/1lybZyAM4XaRwzCVEKXG8uUO8HZuhcIr4?usp=sharing"
+       target="_blank" rel="noopener"
+       aria-label="Download additional workshop materials (opens Google Drive in new tab)">
+      <span class="dl-icon">📦</span>
+      Additional Materials
+    </a>
   </div>
 
   <footer>Drawing Mandalas with Code · p5.js Workshop</footer>
