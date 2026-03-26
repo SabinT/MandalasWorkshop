@@ -59,8 +59,8 @@ function draw() {
     fill("rgba(255, 200, 0, 0.5)");
     ring({ shape: motifTile,    n: 16, r1: 460, r2: 490 });
 
-    showMotif(motifPetal);
-    showMotif(motifStar);
+    // showMotif(motifPetal);
+    // showMotif(motifStar);
 }
 
 // ── Ring 1: Leaf — mLine, mBezier, mCircle ───────────────────

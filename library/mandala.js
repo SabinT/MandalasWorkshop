@@ -416,6 +416,43 @@ function _smDrawGrid() {
     stroke(boxTone);
     strokeWeight(1);
     rect(-1 * sc + ox, -1 * sc + oy, 2 * sc, 2 * sc);
+
+    _smDrawReferenceLabels(xLeft, xRight, yTop, yBottom);
+}
+
+/** Draw fixed coordinate labels for corners and side midpoints outside the motif box. */
+function _smDrawReferenceLabels(xLeft, xRight, yTop, yBottom) {
+    const tone = _smGetContrastBrightness(2);
+    const pad = 10;
+
+    noStroke();
+    fill(tone);
+    textSize(12);
+    textFont('monospace');
+
+    textAlign(RIGHT, BOTTOM);
+    text('(-1, -1)', xLeft - pad, yTop - pad);
+
+    textAlign(CENTER, BOTTOM);
+    text('(0, -1)', (xLeft + xRight) / 2, yTop - pad);
+
+    textAlign(LEFT, BOTTOM);
+    text('(1, -1)', xRight + pad, yTop - pad);
+
+    textAlign(RIGHT, CENTER);
+    text('(-1, 0)', xLeft - pad, (yTop + yBottom) / 2);
+
+    textAlign(LEFT, CENTER);
+    text('(1, 0)', xRight + pad, (yTop + yBottom) / 2);
+
+    textAlign(RIGHT, TOP);
+    text('(-1, 1)', xLeft - pad, yBottom + pad);
+
+    textAlign(CENTER, TOP);
+    text('(0, 1)', (xLeft + xRight) / 2, yBottom + pad);
+
+    textAlign(LEFT, TOP);
+    text('(1, 1)', xRight + pad, yBottom + pad);
 }
 
 /** Replay captured motif commands in screen space. */
