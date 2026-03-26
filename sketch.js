@@ -1,10 +1,5 @@
-// ============================================================
-// sketch.js — Your mandala design lives here!
-// ============================================================
+// --------- SYSTEM CODE: Don't change unless you know what you're doing! ---------
 const UI = new WorkshopSketchUI();
-
-// Change background color here!
-const MANDALA_BG = "#accbbc";
 const CANVAS_SIZE = 1000;
 const MOTIF_SIZE = 10;
 
@@ -13,59 +8,56 @@ function setup() {
     setMotifSize(MOTIF_SIZE);
     angleMode(DEGREES);
 }
+// -------------------- END OF SYSTEM CODE ----------------------------------------
+
+// Change background color here! It has to be a hex code
+const MANDALA_BG = "#accbbc";
 
 function draw() {
+    // ------------ Setup code: don't change this block ----------
     background(MANDALA_BG);
     translate(width / 2, height / 2);
-
-    // Mandala-view radial grid (toggle with Show/Hide Grid in toolbar)
     drawPolarGrid(UI.getPolarGridDivisions(), 0, width / 2);
 
-    // This is where you can change the repitition and placement of motifs
-    // Change the arguments to ring() to create different arrangements of your motif.
-    // Add more lines like this to arrange more motifs.
-    // Change color, thickness, etc before a ring() call to style that ring's motifs.
+    // ------------- YOUR MANDALA DESIGN HERE! ------------------
+    // **********************************************************
+    // Set stroke and fill colors
+    stroke("black");
+    fill("white");
+
+    // Syntax: ring({ shape: motifFunction, n: [reptition count], r1: [start radius], r2: [end radius] });
     ring({ shape: yourMotif, n: 24, r1: 250, r2: 300 });
 
-    // Try 'offset' and 'gap' parameters to stagger / space out motifs!
+    // Try 'offset' and 'gapDegrees' parameters to stagger / space out motifs within a ring!
     // ring({ shape: yourMotif, n: 24, r1: 300, r2: 320, offset: 0.5, gapDegrees: 10 });
 
+    // ------------- END OF YOUR DESIGN ------------------
 
-    // This block is activated when you enable "Enable Debug Draw" in the UI.
     if (UI.showMotif) {
-        // Show isolated motif designs in debug mode.
-        // Add more lines like this to preview multiple motifs at once.
+        // Preview a motif when you click the "Show motif" button in the UI.
+        // Change 'yourMotif' to the name of any motif function you want to preview!
         showMotif(yourMotif);
     }
 }
 
-/**
- * Create your custom motif here!
- * Design your motif in undistorted space: a square [-S,-S] to [S,S], where S is MOTIF_SIZE.
- *
- * TODO: Design your motif using mLine, mTriangle, mBox, mQuad,etc.
- */
+// A motif is a simple function that used commands like mLine(), mTriangle(), mBox(), etc. to draw a design within a 20x20 box centered at (0, 0).
 function yourMotif() {
-    // This is a reference of all the available motif drawing commands.
-    // mLine(-10, -10, 10, 10, 1);
-
+    
     mTriangle(-10, 10, 0, -10, 10, 10);
+    
+    // Try these other drawing commands as well!
 
-    // Try these other commands as well!
-    // mBox(-10, -10, 20, 20, 1);
-
-    // mQuad(-10, -10, -5, 10, 5, 10, 10, -10);
-
-    // mBezier(-10, -10, -5, 5, 10, -10, 10, 10);
-
-    // mArc(0, 0, 8, 0, 180);
+    // mLine(-10, -10, 10, 10);
 
     // mCircle(0, 0, 10);
 
-    // Hexagon = circle approximated with 6 points!
-    // mCircle(0, 0, 10, 6);
+    // mQuad(-10, -10, -5, 10, 5, 10, 10, -10);    
 
     // mDot(0, 0, 10);
 
     // mEllipse(0, 0, 5, 10);
+    
+    // mBezier(-10, -10, -5, 5, 10, -10, 10, 10);
 }
+
+// Add new motif functions here! You can create as many as you like.
