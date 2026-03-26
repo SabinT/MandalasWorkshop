@@ -34,7 +34,11 @@ MandalasWorkshop/
 │   ├── mandala.js       Ring / polar-mapping logic (requires p5.js globals):
 │   │                      ring({ shape, n, r1, r2 })
 │   │                      mLine, mBezier, mCircle  — motif drawing commands
-│   │                      drawPolarGrid(n, r1, r2) — debug grid
+│   │                      drawPolarGrid(n, r1, r2) — debug polar grid
+│   │                      showMotif(motifFn) — interactive fullscreen debugger:
+│   │                        black bg, faint grid (4 major/8 minor),
+│   │                        mouse-wheel zoom, left-drag pan,
+│   │                        crosshair + motif-space (x,y) at cursor
 │   │                      mapToRing, drawCommandsInRing,
 │   │                      captureMotif, drawMappedCircle (internals)
 │   └── p5.min-1.11.11.js  p5.js library (local, minified).

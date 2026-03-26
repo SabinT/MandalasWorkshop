@@ -239,3 +239,220 @@ function drawPolarGrid(n, r1, r2) {
         line(r1 * cos(a), r1 * sin(a), r2 * cos(a), r2 * sin(a));
     }
 }
+
+// ============================================================
+// showMotif — Interactive motif debugger / preview
+// ============================================================
+
+let _smZoom        = 1;       // current zoom level  (1 = default fit)
+let _smPanX        = 0;       // pan offset X in screen pixels
+let _smPanY        = 0;       // pan offset Y in screen pixels
+let _smDragging    = false;   // left-drag in progress?
+let _smDragAnchorX = 0;
+let _smDragAnchorY = 0;
+let _smDragPanX0   = 0;
+let _smDragPanY0   = 0;
+let _smLastFrame   = -1;      // frameCount when background was last cleared
+let _smActive      = false;   // true once showMotif() has been called
+
+/**
+ * Preview / debug a motif function in an interactive fullscreen view.
+ *
+ * - Black background with a faint coordinate grid (4 major / 8 minor divisions).
+ * - Faint border outlining the [-1, 1] × [-1, 1] drawing space.
+ * - Grid lines outside the drawing space are dimmer than those inside.
+ * - Displays 1.25× the drawing space extents by default.
+ * - Mouse wheel: zoom toward cursor.  Left-drag: pan.
+ * - Crosshair lines and motif-space (x, y) shown at the cursor.
+ * - Multiple calls in the same frame layer over each other (no background clear).
+ *
+ * @param {function} motifFn  A motif function (uses mLine / mBezier / mCircle / …).
+ */
+function showMotif(motifFn) {
+    _smActive = true;
+    if (width !== windowWidth || height !== windowHeight) {
+        resizeCanvas(windowWidth, windowHeight);
+    }
+
+    // First call this frame → black background + coordinate grid
+    if (frameCount !== _smLastFrame) {
+        _smLastFrame = frameCount;
+        push();
+        resetMatrix();
+        background(0);
+        _smDrawGrid();
+        pop();
+    }
+
+    // Draw the motif using the caller's current stroke / fill settings
+    const commands = captureMotif(motifFn);
+    push();
+    resetMatrix();
+    _smDrawCommands(commands, _smScale(),
+                    width / 2 + _smPanX, height / 2 + _smPanY);
+    pop();
+
+    // Overlay: crosshair lines + coordinate label at the cursor
+    push();
+    resetMatrix();
+    _smDrawOverlay();
+    pop();
+}
+
+// ---- showMotif internal helpers ----------------------------------------
+
+/** Pixel scale: maps 1 motif unit to this many pixels at the current zoom. */
+function _smScale() {
+    return (Math.min(width, height) / (2 * 1.25)) * _smZoom;
+}
+
+/** Draw the background grid and the motif-space boundary box. */
+function _smDrawGrid() {
+    const sc = _smScale();
+    const ox = width  / 2 + _smPanX;
+    const oy = height / 2 + _smPanY;
+
+    // Visible motif-space range
+    const mxMin = (0      - ox) / sc;
+    const mxMax = (width  - ox) / sc;
+    const myMin = (0      - oy) / sc;
+    const myMax = (height - oy) / sc;
+
+    // Grid: minor step 0.25 (8 divisions in [-1,1]),
+    //       major step 0.50 (4 divisions in [-1,1], every 2 minor steps)
+    const minorStep = 0.25;
+    const majorPer  = 2;     // major line every majorPer minor steps
+
+    const dimOutside = 10;   // brightness for lines outside [-1, 1]²
+    const dimMinor   = 22;   // brightness for minor lines inside
+    const dimMajor   = 45;   // brightness for major lines inside
+
+    noFill();
+    strokeWeight(1);
+
+    const ixMin = Math.floor(mxMin / minorStep);
+    const ixMax = Math.ceil(mxMax  / minorStep);
+    const iyMin = Math.floor(myMin / minorStep);
+    const iyMax = Math.ceil(myMax  / minorStep);
+
+    // Vertical grid lines
+    for (let i = ixMin; i <= ixMax; i++) {
+        const mx     = i * minorStep;
+        const inside = mx >= -1 && mx <= 1;
+        const major  = (i % majorPer === 0);
+        stroke(inside ? (major ? dimMajor : dimMinor) : dimOutside);
+        const sx = mx * sc + ox;
+        line(sx, 0, sx, height);
+    }
+
+    // Horizontal grid lines
+    for (let j = iyMin; j <= iyMax; j++) {
+        const my     = j * minorStep;
+        const inside = my >= -1 && my <= 1;
+        const major  = (j % majorPer === 0);
+        stroke(inside ? (major ? dimMajor : dimMinor) : dimOutside);
+        const sy = my * sc + oy;
+        line(0, sy, width, sy);
+    }
+
+    // Faint box outlining the [-1, 1] × [-1, 1] drawing space
+    stroke(75);
+    strokeWeight(1);
+    rect(-1 * sc + ox, -1 * sc + oy, 2 * sc, 2 * sc);
+}
+
+/** Replay captured motif commands in screen space. */
+function _smDrawCommands(commands, sc, ox, oy) {
+    for (const cmd of commands) {
+        if (cmd.closed) {
+            beginShape();
+            for (let i = 0; i <= cmd.divisions; i++) {
+                const p = cmd.evaluate(i / cmd.divisions);
+                vertex(p.x * sc + ox, p.y * sc + oy);
+            }
+            endShape(CLOSE);
+        } else {
+            let prev = null;
+            for (let i = 0; i <= cmd.divisions; i++) {
+                const p  = cmd.evaluate(i / cmd.divisions);
+                const sx = p.x * sc + ox;
+                const sy = p.y * sc + oy;
+                if (prev !== null) line(prev.x, prev.y, sx, sy);
+                prev = vec2(sx, sy);
+            }
+        }
+    }
+}
+
+/** Draw the crosshair lines and coordinate label at the current cursor position. */
+function _smDrawOverlay() {
+    const sc  = _smScale();
+    const ox  = width  / 2 + _smPanX;
+    const oy  = height / 2 + _smPanY;
+    const mxM = (mouseX - ox) / sc;
+    const myM = (mouseY - oy) / sc;
+
+    // Crosshair lines
+    stroke(90);
+    strokeWeight(1);
+    noFill();
+    line(mouseX, 0, mouseX, height);
+    line(0, mouseY, width, mouseY);
+
+    // Coordinate label
+    const label = '(' + mxM.toFixed(2) + ', ' + myM.toFixed(2) + ')';
+    noStroke();
+    fill(210);
+    textSize(13);
+    textFont('monospace');
+    textAlign(LEFT, TOP);
+    let tx = mouseX + 10;
+    let ty = mouseY + 10;
+    if (tx + 120 > width)  tx = mouseX - 130;
+    if (ty + 22  > height) ty = mouseY - 32;
+    text(label, tx, ty);
+}
+
+// ---- Mouse / window event handlers for showMotif -----------------------
+// These handlers are defined here so showMotif works out of the box.
+// If sketch.js defines its own mouseWheel / mousePressed / mouseReleased /
+// mouseDragged / windowResized, those definitions will take precedence
+// (script tags are executed in order, so sketch.js loads after mandala.js).
+
+function mouseWheel(event) {
+    if (!_smActive) return;
+    const factor = event.delta > 0 ? 0.9 : 1.1;
+    const oldSc  = _smScale();
+    _smZoom      = Math.max(0.05, Math.min(50, _smZoom * factor));
+    const ratio  = _smScale() / oldSc;
+    _smPanX = mouseX - width  / 2 - ratio * (mouseX - width  / 2 - _smPanX);
+    _smPanY = mouseY - height / 2 - ratio * (mouseY - height / 2 - _smPanY);
+    return false;
+}
+
+function mousePressed() {
+    if (!_smActive) return;
+    if (mouseButton === LEFT) {
+        _smDragging    = true;
+        _smDragAnchorX = mouseX;
+        _smDragAnchorY = mouseY;
+        _smDragPanX0   = _smPanX;
+        _smDragPanY0   = _smPanY;
+    }
+}
+
+function mouseReleased() {
+    if (!_smActive) return;
+    _smDragging = false;
+}
+
+function mouseDragged() {
+    if (_smDragging) {
+        _smPanX = _smDragPanX0 + (mouseX - _smDragAnchorX);
+        _smPanY = _smDragPanY0 + (mouseY - _smDragAnchorY);
+    }
+}
+
+function windowResized() {
+    if (_smActive) resizeCanvas(windowWidth, windowHeight);
+}
