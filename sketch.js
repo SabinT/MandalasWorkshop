@@ -18,12 +18,8 @@ const MANDALA_BG = "#accbbc";
 const CANVAS_SIZE = 1000;
 const UI = new WorkshopSketchUI();
 
-globalThis.MANDALA_BG = MANDALA_BG;
-
 function setup() {
-    const canvas = createCanvas(CANVAS_SIZE, CANVAS_SIZE);
-    UI.attachCanvas(canvas);
-
+    createCanvas(CANVAS_SIZE, CANVAS_SIZE);
     angleMode(RADIANS);
 }
 

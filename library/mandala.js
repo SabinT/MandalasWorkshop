@@ -276,7 +276,7 @@ function showMotif(motifFn) {
         _smLastFrame = frameCount;
         push();
         resetMatrix();
-        background(_smGetBackgroundColor());
+        _smApplyStoredBackground();
         _smDrawGrid();
         pop();
     }
@@ -298,21 +298,29 @@ function showMotif(motifFn) {
 
 // ---- showMotif internal helpers ----------------------------------------
 
-/** Shared background color from sketch.js, with fallback for older sketches. */
-function _smGetBackgroundColor() {
-    return (globalThis.MANDALA_BG !== undefined) ? globalThis.MANDALA_BG : 0;
+/** The most recent background() arguments, captured by the workshop shim. */
+function _smGetBackgroundArgs() {
+    if (Array.isArray(globalThis.__mandalaLastBackgroundArgs) && globalThis.__mandalaLastBackgroundArgs.length > 0) {
+        return globalThis.__mandalaLastBackgroundArgs;
+    }
+    return [0];
+}
+
+/** Re-apply the sketch's last background() call. */
+function _smApplyStoredBackground() {
+    background(..._smGetBackgroundArgs());
 }
 
 /** Approximate perceived brightness (0..255) of the configured background color. */
 function _smGetBackgroundBrightness() {
-    const bg = _smGetBackgroundColor();
+    const bgArgs = _smGetBackgroundArgs();
 
-    if (typeof bg === 'number') {
-        return constrain(bg, 0, 255);
+    if (bgArgs.length === 1 && typeof bgArgs[0] === 'number') {
+        return constrain(bgArgs[0], 0, 255);
     }
 
     try {
-        const c = color(bg);
+        const c = color(...bgArgs);
         return 0.2126 * red(c) + 0.7152 * green(c) + 0.0722 * blue(c);
     } catch (_err) {
         return 0;

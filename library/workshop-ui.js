@@ -11,6 +11,36 @@ class WorkshopSketchUI {
         this.debugToggleButton = null;
         this.exportButton = null;
         this.canvas = null;
+
+        // Wrap window.setup so our shims are installed after p5 fully initialises
+        // its globals (which happens just before p5 calls setup()).
+        // Function declarations in sketch.js are hoisted, so window.setup already
+        // points to the user's function by the time this constructor runs.
+        const ui = this;
+        const userSetup = window.setup;
+        window.setup = function () {
+            // ── background shim ──────────────────────────────────────────
+            // Intercept every background() call to remember the last arguments
+            // so showMotif() can replay the same background colour.
+            const origBackground = window.background;
+            window.__mandalaLastBackgroundArgs = [0];
+            window.background = function (...args) {
+                if (args.length > 0) window.__mandalaLastBackgroundArgs = args;
+                return origBackground.apply(this, args);
+            };
+
+            // ── createCanvas shim ────────────────────────────────────────
+            // One-shot: auto-call attachCanvas() and restore the original.
+            const origCreateCanvas = window.createCanvas;
+            window.createCanvas = function (...args) {
+                window.createCanvas = origCreateCanvas;         // restore first
+                const canvas = origCreateCanvas.apply(this, args);
+                ui.attachCanvas(canvas);
+                return canvas;
+            };
+
+            if (userSetup) userSetup.call(this);
+        };
     }
 
     attachCanvas(canvas) {
