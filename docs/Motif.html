@@ -345,6 +345,7 @@
         <li><a href="#mLine">mLine(x1, y1, x2, y2)</a></li>
         <li><a href="#mBezier">mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2)</a></li>
         <li><a href="#mCircle">mCircle(x, y, r)</a></li>
+        <li><a href="#mDot">mDot(x, y, r)</a></li>
         <li><a href="#mEllipse">mEllipse(cx, cy, rx, ry)</a></li>
         <li><a href="#mArc">mArc(cx, cy, r, startAngle, endAngle)</a></li>
         <li><a href="#mTriangle">mTriangle(x1, y1, x2, y2, x3, y3)</a></li>
@@ -417,8 +418,9 @@
         <span class="card-title">mCircle — Circle</span>
       </div>
       <p>
-        Draws a filled circle in motif space. The circle is internally approximated
-        with many vertices so it deforms correctly when mapped into polar (ring) space.
+        Draws a filled circle in motif space. When mapped into a ring, the circle
+        stretches and distorts with the polar transform. Use <code>mDot</code> instead
+        if you want a circle that stays perfectly round in the final mandala.
       </p>
       <code class="fn-sig">mCircle(x, y, r)</code>
       <table class="param-table">
@@ -432,6 +434,35 @@
         <p class="example-label">Example — dot at the tip of each segment</p>
         <pre><span class="kw">function</span> <span class="fn">motifDot</span>() {
   <span class="fn">mCircle</span>(<span class="nm">0</span>, <span class="nm">0.7</span>, <span class="nm">0.15</span>);  <span class="cm">// near the outer edge</span>
+}</pre>
+      </div>
+      <a class="back-to-top" href="#top">[back to top]</a>
+    </div>
+
+    <!-- ── mDot ── -->
+    <div class="card" id="mDot">
+      <div class="card-header">
+        <div class="card-icon">🔵</div>
+        <span class="card-title">mDot — True Circle</span>
+      </div>
+      <p>
+        Draws a perfect circle that stays round in both motif space and the final mandala.
+        Unlike <code>mCircle</code>, only the centre is mapped into ring space, so the
+        circle is never distorted by the polar transform. The radius is scaled by the
+        ring's radial extent.
+      </p>
+      <code class="fn-sig">mDot(x, y, r)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">x, y</td><td class="param-type">number</td><td>Centre of the dot in motif space.</td></tr>
+          <tr><td class="param-name">r</td><td class="param-type">number</td><td>Radius in motif-space units.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — perfectly round dot near the outer edge</p>
+        <pre><span class="kw">function</span> <span class="fn">motifDot</span>() {
+  <span class="fn">mDot</span>(<span class="nm">0</span>, <span class="nm">0.7</span>, <span class="nm">0.12</span>);  <span class="cm">// always a perfect circle in the mandala</span>
 }</pre>
       </div>
       <a class="back-to-top" href="#top">[back to top]</a>
