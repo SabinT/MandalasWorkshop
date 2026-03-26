@@ -312,7 +312,7 @@
 
       <p>Repeats a motif function evenly around a circular ring on the canvas.</p>
 
-      <code class="fn-sig">ring({ shape, n, r1, r2 })</code>
+      <code class="fn-sig">ring({ shape, n, r1, r2, offset })</code>
 
       <table class="param-table">
         <thead>
@@ -360,6 +360,17 @@
               in motif space (where S is the design-space size). Must be greater than <code>r1</code>.
             </td>
           </tr>
+          <tr>
+            <td class="param-name">offset</td>
+            <td class="param-type">number (optional, default 0)</td>
+            <td>
+              <strong>Segment offset.</strong> Rotates the entire ring by a fraction
+              of one segment. A value of <code>1</code> shifts by one full segment
+              (equivalent to no visual change), <code>0.5</code> shifts by a
+              half-segment — useful for interleaving two rings of the same motif.
+              Defaults to <code>0</code>.
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -367,7 +378,10 @@
         <p class="example-label">Example</p>
         <pre><span class="cm">// Draw myMotif 12 times around a ring</span>
 <span class="cm">// between radius 80 px (inner) and 160 px (outer).</span>
-<span class="fn">ring</span>({ <span class="kw">shape</span>: myMotif, <span class="kw">n</span>: <span class="nm">12</span>, <span class="kw">r1</span>: <span class="nm">80</span>, <span class="kw">r2</span>: <span class="nm">160</span> });</pre>
+<span class="fn">ring</span>({ <span class="kw">shape</span>: myMotif, <span class="kw">n</span>: <span class="nm">12</span>, <span class="kw">r1</span>: <span class="nm">80</span>, <span class="kw">r2</span>: <span class="nm">160</span> });
+
+<span class="cm">// Same motif offset by half a segment — creates a staggered pattern.</span>
+<span class="fn">ring</span>({ <span class="kw">shape</span>: myMotif, <span class="kw">n</span>: <span class="nm">12</span>, <span class="kw">r1</span>: <span class="nm">160</span>, <span class="kw">r2</span>: <span class="nm">240</span>, <span class="kw">offset</span>: <span class="nm">0.5</span> });</pre>
       </div>
 
       <div class="tip">
