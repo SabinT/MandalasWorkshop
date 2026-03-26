@@ -9,7 +9,7 @@
 
 A p5.js starter project for a creative-coding workshop. Students radially
 repeat decorative motifs (shapes) in polar space while designing them in a
-simple normalized "easy space" coordinate system (−1 to 1).
+configurable "easy space" coordinate system (−S to S, default −1 to 1).
 
 ---
 
@@ -33,14 +33,20 @@ MandalasWorkshop/
 │   │                      Each exposes evaluate(t)→vec2, divisions, closed
 │   ├── mandala.js       Ring / polar-mapping logic (requires p5.js globals):
 │   │                      ring({ shape, n, r1, r2 })
+│   │                      setDesignSpace(size) — set easy-space half-extent (default 1)
 │   │                      mLine, mBezier, mCircle  — motif drawing commands
 │   │                      drawPolarGrid(n, r1, r2) — debug polar grid
-│   │                      showMotif(motifFn) — interactive fullscreen debugger:
-│   │                        black bg, faint grid (4 major/8 minor),
+│   │                      showMotif(motifFn) — interactive motif debugger:
+│   │                        shared bg, faint grid (4 major/8 minor),
 │   │                        mouse-wheel zoom, left-drag pan,
 │   │                        crosshair + motif-space (x,y) at cursor
 │   │                      mapToRing, drawCommandsInRing,
 │   │                      captureMotif, drawMappedCircle (internals)
+│   ├── workshop-ui.js   WorkshopSketchUI class — toolbar above canvas:
+│   │                      new WorkshopSketchUI() — call in sketch.js
+│   │                      isDebugDrawEnabled() → bool
+│   │                      toggleDebugDraw() — toggle motif debug view
+│   │                      exportPng() — save canvas as PNG
 │   └── p5.min-1.11.11.js  p5.js library (local, minified).
 ├── docs/
 │   ├── index.html       Workshop landing/setup page with a Docs toolbar.
@@ -57,9 +63,10 @@ MandalasWorkshop/
 ## Key Concepts
 
 ### Easy Space
-Motifs are designed in a normalized square: **x ∈ [−1, 1], y ∈ [−1, 1]**.
+Motifs are designed in a configurable square: **x ∈ [−S, S], y ∈ [−S, S]** where
+S is set by `setDesignSpace(S)` (default 1; workshop uses 100).
 - **x** maps to *angular* position within one ring segment.
-- **y** maps to *radial* position: −1 = inner radius, +1 = outer radius.
+- **y** maps to *radial* position: −S = inner radius, +S = outer radius.
 
 ### Motif Functions
 A motif is a plain JS function that calls the `m`-prefixed drawing commands:
@@ -102,14 +109,14 @@ The `docs/` folder contains HTML reference pages for the workshop:
 - `docs/index.html` — landing/setup page with a **Docs toolbar** linking to the reference pages.
 - `docs/Motif.html` — reference for all motif-space drawing functions (`mLine`, `mBezier`,
   `mCircle`, `mEllipse`, `mArc`, `mTriangle`, `mQuad`, `mShape`, `mPath`, `mCurve`).
-- `docs/Mandala.html` — reference for the `ring()` function and the easy-space coordinate system.
+- `docs/Mandala.html` — reference for the `ring()` function, `setDesignSpace()`, and the easy-space coordinate system.
 
 **Keep documentation in sync with the code.**  Whenever you:
 - Add, remove, or change a **motif-space drawing function** (`mLine`, `mBezier`, `mCircle`,
   `mTriangle`, `mQuad`, `mShape`, `mPath`, `mArc`, `mEllipse`, `mCurve`, or any future
   `mXxx` function in `library/mandala.js`), update **`docs/Motif.html`** to reflect the
   change (add / remove / edit the corresponding card).
-- Add, remove, or change **parameters of `ring()`** (e.g. `shape`, `n`, `r1`, `r2`) in
+- Add, remove, or change **parameters of `ring()`** or **`setDesignSpace()`** in
   `library/mandala.js`, update **`docs/Mandala.html`** to reflect the change.
 - Add, remove, or change the **docs toolbar buttons** in `docs/index.html` when new doc
   pages are added or removed.

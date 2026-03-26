@@ -316,7 +316,8 @@
       </div>
       <p>
         A <strong>motif</strong> is the repeated element of a mandala — a 2D drawing
-        defined in <strong>motif space</strong> (a square where both x and y go from −1 to +1).
+        defined in <strong>motif space</strong> (a square where both x and y run from −S to +S,
+        where S is set by <code>setDesignSpace()</code> — default 1).
       </p>
       <p>
         The functions below are <strong>motif drawing functions</strong>. Unlike regular
@@ -454,14 +455,14 @@
         <tbody>
           <tr><td class="param-name">cx, cy</td><td class="param-type">number</td><td>Centre of the arc in motif space.</td></tr>
           <tr><td class="param-name">r</td><td class="param-type">number</td><td>Radius in motif-space units.</td></tr>
-          <tr><td class="param-name">startAngle</td><td class="param-type">number (radians)</td><td>Starting angle (0 = right, increasing clockwise).</td></tr>
-          <tr><td class="param-name">endAngle</td><td class="param-type">number (radians)</td><td>Ending angle.</td></tr>
+          <tr><td class="param-name">startAngle</td><td class="param-type">number</td><td>Starting angle in the sketch's current <code>angleMode()</code> (0 = right, increasing clockwise).</td></tr>
+          <tr><td class="param-name">endAngle</td><td class="param-type">number</td><td>Ending angle in the sketch's current <code>angleMode()</code>.</td></tr>
         </tbody>
       </table>
       <div class="example">
-        <p class="example-label">Example — a smile-shaped arc</p>
+        <p class="example-label">Example — a smile-shaped arc (degrees)</p>
         <pre><span class="kw">function</span> <span class="fn">motifSmile</span>() {
-  <span class="fn">mArc</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.5</span>, <span class="nm">0</span>, Math.PI);
+  <span class="fn">mArc</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.5</span> * DESIGN_SPACE, <span class="nm">0</span>, <span class="nm">180</span>);  <span class="cm">// 0° to 180° in DEGREES mode</span>
 }</pre>
       </div>
     </div>

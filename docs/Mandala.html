@@ -298,8 +298,9 @@
       </p>
       <p>
         Every repetition is automatically rotated and mapped from the flat
-        <strong>easy space</strong> grid (x ∈ [−1, 1], y ∈ [−1, 1]) into its correct
-        position in polar coordinates on the canvas.
+        <strong>easy space</strong> grid (x ∈ [−S, S], y ∈ [−S, S]) into its correct
+        position in polar coordinates on the canvas. The size S defaults to 1 and can be
+        changed with <code>setDesignSpace(S)</code>.
       </p>
     </div>
 
@@ -347,8 +348,8 @@
             <td class="param-type">number (pixels)</td>
             <td>
               <strong>Inner radius</strong> — distance from the canvas centre to the
-              inner edge of the ring, in pixels. Corresponds to <em>y = −1</em>
-              in motif space.
+              inner edge of the ring, in pixels. Corresponds to <em>y = −S</em>
+              in motif space (where S is the design-space size).
             </td>
           </tr>
           <tr>
@@ -356,8 +357,8 @@
             <td class="param-type">number (pixels)</td>
             <td>
               <strong>Outer radius</strong> — distance from the canvas centre to the
-              outer edge of the ring, in pixels. Corresponds to <em>y = +1</em>
-              in motif space. Must be greater than <code>r1</code>.
+              outer edge of the ring, in pixels. Corresponds to <em>y = +S</em>
+              in motif space (where S is the design-space size). Must be greater than <code>r1</code>.
             </td>
           </tr>
         </tbody>
@@ -384,8 +385,11 @@
         <span class="card-title">Easy Space (Motif Coordinate System)</span>
       </div>
       <p>
-        Motifs are designed in a normalized square called <strong>easy space</strong>:
-        both <em>x</em> and <em>y</em> range from −1 to +1.
+        Motifs are designed in a square called <strong>easy space</strong>:
+        both <em>x</em> and <em>y</em> range from −S to +S, where S is the
+        design-space size (default 1). Call <code>setDesignSpace(S)</code>
+        in <code>setup()</code> to use a different scale — for example
+        <code>setDesignSpace(100)</code> lets you work in a −100 to 100 range.
       </p>
       <p>
         When <code>ring()</code> maps a motif into a ring segment the axes have
@@ -403,18 +407,18 @@
         <tbody>
           <tr>
             <td class="param-name">x</td>
-            <td class="param-type">−1 … +1</td>
+            <td class="param-type">−S … +S</td>
             <td>
               <strong>Angular position</strong> within the ring segment.
-              −1 is the left edge of the segment, 0 is its centre, +1 is the right edge.
+              −S is the left edge of the segment, 0 is its centre, +S is the right edge.
             </td>
           </tr>
           <tr>
             <td class="param-name">y</td>
-            <td class="param-type">−1 … +1</td>
+            <td class="param-type">−S … +S</td>
             <td>
               <strong>Radial position</strong> within the ring.
-              −1 is the inner radius (<code>r1</code>), +1 is the outer radius
+              −S is the inner radius (<code>r1</code>), +S is the outer radius
               (<code>r2</code>).
             </td>
           </tr>
@@ -424,6 +428,61 @@
       <div class="tip">
         💡 Use <code>showMotif(myMotifFn)</code> to preview your motif in an interactive
         debugger that shows the easy-space grid with axis labels, zoom, and pan.
+      </div>
+    </div>
+
+    <!-- ── setDesignSpace() ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📏</div>
+        <span class="card-title">setDesignSpace( size )</span>
+      </div>
+
+      <p>
+        Sets the half-extent of the easy-space coordinate system used by all motif
+        drawing functions. Call this once in <code>setup()</code> before drawing.
+      </p>
+
+      <code class="fn-sig">setDesignSpace(size)</code>
+
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-name">size</td>
+            <td class="param-type">number</td>
+            <td>
+              Half-extent of the design space. Coordinates will run from
+              <code>−size</code> to <code>+size</code> on both axes.
+              Defaults to <code>1</code> (so coordinates range from −1 to +1).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="example">
+        <p class="example-label">Example — working in a −100 to 100 coordinate space</p>
+        <pre><span class="kw">const</span> DESIGN_SPACE = <span class="nm">100</span>;
+
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  <span class="fn">createCanvas</span>(<span class="nm">1000</span>, <span class="nm">1000</span>);
+  <span class="fn">setDesignSpace</span>(DESIGN_SPACE);  <span class="cm">// motif coords now range -100 to 100</span>
+}
+
+<span class="kw">function</span> <span class="fn">motifLeaf</span>() {
+  <span class="fn">mLine</span>(<span class="nm">0</span>, -<span class="nm">80</span>, <span class="nm">0</span>, <span class="nm">80</span>);  <span class="cm">// coordinates scaled to design space</span>
+}</pre>
+      </div>
+
+      <div class="tip">
+        💡 <code>showMotif()</code> automatically adapts its grid labels to the current
+        design-space size, so the axis labels always show the correct coordinate values.
       </div>
     </div>
 
