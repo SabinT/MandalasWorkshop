@@ -3,8 +3,9 @@
 // ============================================================
 //
 // Coordinate convention for motif ("easy space"):
-//   x ∈ [-1, 1]  →  angular position within one ring segment
-//   y ∈ [-1, 1]  →  radial position: -1 = inner radius, +1 = outer radius
+//   x ∈ [-s, s]  →  angular position within one ring segment
+//   y ∈ [-s, s]  →  radial position: -s = inner radius, +s = outer radius
+//   s defaults to 1. Call setDesignSpace(s) to change it.
 //
 // All mXxx() drawing functions record parametric curve objects
 // (LineCurve, BezierCurve, CircleCurve from curves.js) that are
@@ -14,13 +15,26 @@
 /** @type {Array<LineCurve|BezierCurve|CircleCurve|PolyCurve|ArcCurve|EllipseCurve|CatmullRomCurve>} Captured curves for the current motif. */
 let _commands = [];
 
+/** Half-extent of the design (motif) space. Default 1 → [-1, 1] × [-1, 1]. */
+let _designSpaceSize = 1;
+
+/**
+ * Set the design-space half-extent.
+ * setDesignSpace(100) means motif coordinates run from -100 to 100 on both axes.
+ * The showMotif() grid labels and all ring mappings update automatically.
+ * @param {number} size  Half-extent (default 1).
+ */
+function setDesignSpace(size) {
+    _designSpaceSize = size;
+}
+
 // ------------------------------------------------------------
 // Motif capture helpers — call these inside your motif function
 // ------------------------------------------------------------
 
 /**
  * Draw a line in motif ("easy") space.
- * x ∈ [-1,1], y ∈ [-1,1]
+ * Coordinates are in [-s, s] where s is set by setDesignSpace() (default 1).
  */
 function mLine(x1, y1, x2, y2) {
     _commands.push(new LineCurve(x1, y1, x2, y2));
@@ -175,8 +189,8 @@ function captureMotif(shapeFn) {
 /**
  * Map a motif-space point (x,y) into canvas coordinates inside one ring segment.
  *
- * @param {number} x        Motif-space x ∈ [-1, 1].
- * @param {number} y        Motif-space y ∈ [-1, 1].
+ * @param {number} x        Motif-space x (range set by setDesignSpace, default [-1, 1]).
+ * @param {number} y        Motif-space y (range set by setDesignSpace, default [-1, 1]).
  * @param {number} aCenter  Center angle of this segment (radians).
  * @param {number} aStep    Angular width of one segment (radians).
  * @param {number} r1       Inner radius.
@@ -184,8 +198,9 @@ function captureMotif(shapeFn) {
  * @returns {{ x: number, y: number }} Canvas-space point.
  */
 function mapToRing(x, y, aCenter, aStep, r1, r2) {
-    const angle = aCenter + map(x, -1, 1, -0.5 * aStep, 0.5 * aStep);
-    const radius = map(y, -1, 1, r1, r2);
+    const ds = _designSpaceSize;
+    const angle = aCenter + map(x, -ds, ds, -0.5 * aStep, 0.5 * aStep);
+    const radius = map(y, -ds, ds, r1, r2);
     return vec2(radius * Math.cos(angle), radius * Math.sin(angle));
 }
 
@@ -343,9 +358,9 @@ function _smGetContrastBrightness(multiplier = 1) {
     return constrain(bg + sign * delta, 0, 255);
 }
 
-/** Pixel scale: maps 1 motif unit to this many pixels at the current zoom. */
+/** Pixel scale: maps one design-space unit to this many canvas pixels at the current zoom. */
 function _smScale() {
-    return (Math.min(width, height) / (2 * 1.25)) * _smZoom;
+    return (Math.min(width, height) / (2 * _designSpaceSize * 1.25)) * _smZoom;
 }
 
 /** Draw the background grid and the motif-space boundary box. */
@@ -358,10 +373,11 @@ function _smDrawGrid() {
     const minorTone = lerp(bg, majorTone, 0.65);
     const outsideTone = lerp(bg, majorTone, 0.35);
     const boxTone = lerp(bg, majorTone, 0.85);
-    const xLeft = -1 * sc + ox;
-    const xRight = 1 * sc + ox;
-    const yTop = -1 * sc + oy;
-    const yBottom = 1 * sc + oy;
+    const ds = _designSpaceSize;
+    const xLeft = -ds * sc + ox;
+    const xRight = ds * sc + ox;
+    const yTop = -ds * sc + oy;
+    const yBottom = ds * sc + oy;
 
     // Visible motif-space range
     const mxMin = (0      - ox) / sc;
@@ -369,9 +385,8 @@ function _smDrawGrid() {
     const myMin = (0      - oy) / sc;
     const myMax = (height - oy) / sc;
 
-    // Grid: minor step 0.25 (8 divisions in [-1,1]),
-    //       major step 0.50 (4 divisions in [-1,1], every 2 minor steps)
-    const minorStep = 0.25;
+    // Grid: 8 minor divisions across the full design-space range, major every 2 minor steps
+    const minorStep = ds * 0.25;
     const majorPer  = 2;     // major line every majorPer minor steps
 
     noFill();
@@ -385,7 +400,7 @@ function _smDrawGrid() {
     // Vertical grid lines
     for (let i = ixMin; i <= ixMax; i++) {
         const mx     = i * minorStep;
-        const inside = mx >= -1 && mx <= 1;
+        const inside = mx >= -ds && mx <= ds;
         const major  = (i % majorPer === 0);
         const sx = mx * sc + ox;
 
@@ -405,7 +420,7 @@ function _smDrawGrid() {
     // Horizontal grid lines
     for (let j = iyMin; j <= iyMax; j++) {
         const my     = j * minorStep;
-        const inside = my >= -1 && my <= 1;
+        const inside = my >= -ds && my <= ds;
         const major  = (j % majorPer === 0);
         const sy = my * sc + oy;
 
@@ -422,10 +437,10 @@ function _smDrawGrid() {
         }
     }
 
-    // Faint box outlining the [-1, 1] × [-1, 1] drawing space
+    // Faint box outlining the design space
     stroke(boxTone);
     strokeWeight(1);
-    rect(-1 * sc + ox, -1 * sc + oy, 2 * sc, 2 * sc);
+    rect(-ds * sc + ox, -ds * sc + oy, 2 * ds * sc, 2 * ds * sc);
 
     _smDrawReferenceLabels(xLeft, xRight, yTop, yBottom);
 }
@@ -434,6 +449,10 @@ function _smDrawGrid() {
 function _smDrawReferenceLabels(xLeft, xRight, yTop, yBottom) {
     const tone = _smGetContrastBrightness(2);
     const pad = 10;
+    const ds = _designSpaceSize;
+    // Format a coordinate value: integers display without decimals, others use toFixed(2)
+    const fv = v => Number.isInteger(v) ? String(v) : parseFloat(v.toFixed(2)).toString();
+    const n = fv(ds);
 
     noStroke();
     fill(tone);
@@ -441,28 +460,28 @@ function _smDrawReferenceLabels(xLeft, xRight, yTop, yBottom) {
     textFont('monospace');
 
     textAlign(RIGHT, BOTTOM);
-    text('(-1, -1)', xLeft - pad, yTop - pad);
+    text(`(-${n}, -${n})`, xLeft - pad, yTop - pad);
 
     textAlign(CENTER, BOTTOM);
-    text('(0, -1)', (xLeft + xRight) / 2, yTop - pad);
+    text(`(0, -${n})`, (xLeft + xRight) / 2, yTop - pad);
 
     textAlign(LEFT, BOTTOM);
-    text('(1, -1)', xRight + pad, yTop - pad);
+    text(`(${n}, -${n})`, xRight + pad, yTop - pad);
 
     textAlign(RIGHT, CENTER);
-    text('(-1, 0)', xLeft - pad, (yTop + yBottom) / 2);
+    text(`(-${n}, 0)`, xLeft - pad, (yTop + yBottom) / 2);
 
     textAlign(LEFT, CENTER);
-    text('(1, 0)', xRight + pad, (yTop + yBottom) / 2);
+    text(`(${n}, 0)`, xRight + pad, (yTop + yBottom) / 2);
 
     textAlign(RIGHT, TOP);
-    text('(-1, 1)', xLeft - pad, yBottom + pad);
+    text(`(-${n}, ${n})`, xLeft - pad, yBottom + pad);
 
     textAlign(CENTER, TOP);
-    text('(0, 1)', (xLeft + xRight) / 2, yBottom + pad);
+    text(`(0, ${n})`, (xLeft + xRight) / 2, yBottom + pad);
 
     textAlign(LEFT, TOP);
-    text('(1, 1)', xRight + pad, yBottom + pad);
+    text(`(${n}, ${n})`, xRight + pad, yBottom + pad);
 }
 
 /** Replay captured motif commands in screen space. */
