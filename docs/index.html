@@ -120,7 +120,7 @@
       gap: 0.9rem;
     }
 
-    li {
+    ol > li {
       counter-increment: steps;
       display: flex;
       gap: 0.75rem;
@@ -129,7 +129,7 @@
       line-height: 1.6;
     }
 
-    li::before {
+    ol > li::before {
       content: counter(steps);
       min-width: 22px;
       height: 22px;
@@ -147,7 +147,7 @@
     }
 
     /* each li wraps its prose in a <span> so it forms one flex item */
-    li > span {
+    ol > li > span {
       flex: 1;
       min-width: 0;
     }
@@ -181,6 +181,31 @@
     }
 
     a:hover { text-decoration: underline; }
+
+    /* ── nested options list ── */
+    .options {
+      margin: 0.5rem 0 0 0;
+      padding-left: 1rem;
+      list-style: disc;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .options li {
+      font-size: 0.78rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* ── status bar screenshot ── */
+    .status-bar-img {
+      display: block;
+      margin-top: 0.5rem;
+      max-width: 100%;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
 
     /* ── note / tip ── */
     .tip {
@@ -292,12 +317,20 @@
       </div>
       <ol>
         <li><span>
-          Install <a href="https://code.visualstudio.com" target="_blank" rel="noopener">VS Code</a>
-          and <a href="https://git-scm.com" target="_blank" rel="noopener">Git</a> if you haven't already.
+          Install <a href="https://code.visualstudio.com" target="_blank" rel="noopener">VS Code</a> if you haven't already.
         </span></li>
         <li><span>
-          Clone the workshop repository:
-          <code class="block">git clone https://github.com/SabinT/MandalasWorkshop.git</code>
+          Get the project files — pick one option:
+          <ul class="options">
+            <li>
+              <strong>Git (recommended):</strong> install <a href="https://git-scm.com" target="_blank" rel="noopener">Git</a>, then run:
+              <code class="block">git clone https://github.com/SabinT/MandalasWorkshop.git</code>
+            </li>
+            <li>
+              <strong>ZIP:</strong> <a href="https://github.com/SabinT/MandalasWorkshop/archive/refs/heads/main.zip" target="_blank" rel="noopener">Download the project .zip</a>,
+              then extract it.
+            </li>
+          </ul>
         </span></li>
         <li><span>
           Open the folder in VS Code:
@@ -309,8 +342,7 @@
           when VS Code offers it automatically.
         </span></li>
         <li><span>
-          Right-click <code>index.html</code> in Explorer and choose
-          <kbd>Open with Live Server</kbd>. Your browser will open the sketch.
+          Click the <strong>Go Live</strong> button <img src="https://github.com/user-attachments/assets/5fc1f383-8fa2-40fb-b053-ea9f83166d00" alt="Go Live button in VS Code status bar" class="status-bar-img"> in the bottom-right corner of VS Code's status bar. Your browser will open the sketch.
         </span></li>
         <li><span>
           Edit <code>sketch.js</code> and save — the browser refreshes automatically.
