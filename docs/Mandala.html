@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radial Repetition — Mandalas Workshop Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e0e14;
+      --surface:   #16161f;
+      --border:    #2a2a3a;
+      --accent:    #c084fc;
+      --accent2:   #818cf8;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+      --tag-bg:    #1e1e2e;
+      --radius:    10px;
+      --gap:       1.25rem;
+    }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem 3rem;
+    }
+
+    /* ── nav / back button ── */
+    .top-nav {
+      width: 100%;
+      max-width: 860px;
+      margin-bottom: 1.75rem;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .back-btn:hover {
+      border-color: var(--accent2);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    /* ── header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .workshop-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      font-weight: 400;
+    }
+
+    /* ── content ── */
+    .content {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    /* ── section card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.5rem 1.75rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      background: #2d1b4e;
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    p {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    p + p { margin-top: 0.75rem; }
+
+    /* ── function signature ── */
+    .fn-sig {
+      display: block;
+      margin: 1rem 0;
+      padding: 0.75rem 1rem;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* ── param table ── */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+    }
+
+    .param-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .param-table td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    .param-table tr:last-child td { border-bottom: none; }
+
+    .param-name {
+      font-family: 'Courier New', monospace;
+      color: var(--accent2);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .param-type {
+      color: var(--muted);
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+    }
+
+    /* ── example block ── */
+    .example {
+      margin-top: 1.25rem;
+    }
+
+    .example-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      overflow-x: auto;
+      line-height: 1.55;
+    }
+
+    .kw  { color: #c084fc; }   /* keyword  */
+    .fn  { color: #818cf8; }   /* function name */
+    .cm  { color: #4a5568; }   /* comment */
+    .nm  { color: #68d391; }   /* number literal */
+    .str { color: #f6ad55; }   /* string */
+
+    /* ── tip ── */
+    .tip {
+      margin-top: 1rem;
+      padding: 0.65rem 0.9rem;
+      background: #111827;
+      border-left: 3px solid var(--accent2);
+      border-radius: 4px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    kbd, code {
+      font-family: 'Courier New', monospace;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── footer ── */
+    footer {
+      margin-top: 2.25rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="back-btn" href="index.html">← Back to Home</a>
+  </nav>
+
+  <header>
+    <p class="workshop-label">Reference</p>
+    <h1>Radial Repetition</h1>
+    <p class="subtitle">How to tile a motif around a ring using <code>ring()</code></p>
+  </header>
+
+  <div class="content">
+
+    <!-- ── Overview ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🔵</div>
+        <span class="card-title">Overview</span>
+      </div>
+      <p>
+        The <code>ring()</code> function is the core tool for creating mandala patterns.
+        It takes a motif — a small drawing described in <strong>motif space</strong> —
+        and repeats it <em>n</em> times evenly around a circular ring.
+      </p>
+      <p>
+        Every repetition is automatically rotated and mapped from the flat
+        motif space grid (x ∈ [−S, S], y ∈ [−S, S]) into its correct
+        position in polar coordinates on the canvas. The size S defaults to 1 and can be
+        changed with <code>setDesignSpace(S)</code>.
+      </p>
+    </div>
+
+    <!-- ── ring() ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🔄</div>
+        <span class="card-title">ring( opts )</span>
+      </div>
+
+      <p>Repeats a motif function evenly around a circular ring on the canvas.</p>
+
+      <code class="fn-sig">ring({ shape, n, r1, r2 })</code>
+
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-name">shape</td>
+            <td class="param-type">function</td>
+            <td>
+              A <strong>motif function</strong> that calls motif drawing commands
+              (<code>mLine</code>, <code>mBezier</code>, <code>mCircle</code>, etc.).
+              It will be called once to capture the drawing commands, which are then
+              replayed for each repetition around the ring.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">n</td>
+            <td class="param-type">number</td>
+            <td>
+              <strong>Number of repetitions.</strong> The full 360° circle is divided
+              evenly into <em>n</em> segments and the motif is drawn once in each.
+              Typical values: 6, 8, 12, 16, 24.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">r1</td>
+            <td class="param-type">number (pixels)</td>
+            <td>
+              <strong>Inner radius</strong> — distance from the canvas centre to the
+              inner edge of the ring, in pixels. Corresponds to <em>y = −S</em>
+              in motif space (where S is the design-space size).
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">r2</td>
+            <td class="param-type">number (pixels)</td>
+            <td>
+              <strong>Outer radius</strong> — distance from the canvas centre to the
+              outer edge of the ring, in pixels. Corresponds to <em>y = +S</em>
+              in motif space (where S is the design-space size). Must be greater than <code>r1</code>.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="example">
+        <p class="example-label">Example</p>
+        <pre><span class="cm">// Draw myMotif 12 times around a ring</span>
+<span class="cm">// between radius 80 px (inner) and 160 px (outer).</span>
+<span class="fn">ring</span>({ <span class="kw">shape</span>: myMotif, <span class="kw">n</span>: <span class="nm">12</span>, <span class="kw">r1</span>: <span class="nm">80</span>, <span class="kw">r2</span>: <span class="nm">160</span> });</pre>
+      </div>
+
+      <div class="tip">
+        💡 The canvas origin (0, 0) is the centre of the ring. In p5.js you can
+        move the drawing origin with <code>translate(width/2, height/2)</code> inside
+        <code>draw()</code> so rings are automatically centred.
+      </div>
+    </div>
+
+    <!-- ── Motif Space ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📐</div>
+        <span class="card-title">Motif Space (Coordinate System)</span>
+      </div>
+      <p>
+        Motifs are designed in a square called <strong>motif space</strong>:
+        both <em>x</em> and <em>y</em> range from −S to +S, where S is the
+        design-space size (default 1). Call <code>setDesignSpace(S)</code>
+        in <code>setup()</code> to use a different scale — for example
+        <code>setDesignSpace(100)</code> lets you work in a −100 to 100 range.
+      </p>
+      <p>
+        When <code>ring()</code> maps a motif into a ring segment the axes have
+        the following meaning:
+      </p>
+
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Axis</th>
+            <th>Range</th>
+            <th>Maps to …</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-name">x</td>
+            <td class="param-type">−S … +S</td>
+            <td>
+              <strong>Angular position</strong> within the ring segment.
+              −S is the left edge of the segment, 0 is its centre, +S is the right edge.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">y</td>
+            <td class="param-type">−S … +S</td>
+            <td>
+              <strong>Radial position</strong> within the ring.
+              −S is the inner radius (<code>r1</code>), +S is the outer radius
+              (<code>r2</code>).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tip">
+        💡 Use <code>showMotif(myMotifFn)</code> to preview your motif in an interactive
+        debugger that shows the motif-space grid with axis labels, zoom, and pan.
+      </div>
+    </div>
+
+    <!-- ── setDesignSpace() ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📏</div>
+        <span class="card-title">setDesignSpace( size )</span>
+      </div>
+
+      <p>
+        Sets the half-extent of the motif-space coordinate system used by all motif
+        drawing functions. Call this once in <code>setup()</code> before drawing.
+      </p>
+
+      <code class="fn-sig">setDesignSpace(size)</code>
+
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-name">size</td>
+            <td class="param-type">number</td>
+            <td>
+              Half-extent of the design space. Coordinates will run from
+              <code>−size</code> to <code>+size</code> on both axes.
+              Defaults to <code>1</code> (so coordinates range from −1 to +1).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="example">
+        <p class="example-label">Example — working in a −100 to 100 coordinate space</p>
+        <pre><span class="kw">const</span> DESIGN_SPACE = <span class="nm">100</span>;
+
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  <span class="fn">createCanvas</span>(<span class="nm">1000</span>, <span class="nm">1000</span>);
+  <span class="fn">setDesignSpace</span>(DESIGN_SPACE);  <span class="cm">// motif coords now range -100 to 100</span>
+}
+
+<span class="kw">function</span> <span class="fn">motifLeaf</span>() {
+  <span class="fn">mLine</span>(<span class="nm">0</span>, -<span class="nm">80</span>, <span class="nm">0</span>, <span class="nm">80</span>);  <span class="cm">// coordinates scaled to design space</span>
+}</pre>
+      </div>
+
+      <div class="tip">
+        💡 <code>showMotif()</code> automatically adapts its grid labels to the current
+        design-space size, so the axis labels always show the correct coordinate values.
+      </div>
+    </div>
+
+    <!-- ── Building Concentric Rings ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">⭕</div>
+        <span class="card-title">Building Concentric Rings</span>
+      </div>
+      <p>
+        Call <code>ring()</code> multiple times with different radii and repetition
+        counts to build up layered mandala patterns.
+      </p>
+
+      <div class="example">
+        <p class="example-label">Example — three concentric rings</p>
+        <pre><span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="nm">20</span>);
+  <span class="fn">translate</span>(width / <span class="nm">2</span>, height / <span class="nm">2</span>);
+
+  stroke(<span class="nm">255</span>);
+  noFill();
+
+  <span class="cm">// Inner ring — 8 petals, thin band</span>
+  <span class="fn">ring</span>({ shape: motifPetal, n: <span class="nm">8</span>,  r1: <span class="nm">40</span>,  r2: <span class="nm">100</span> });
+
+  <span class="cm">// Middle ring — 12 leaves, wider band</span>
+  <span class="fn">ring</span>({ shape: motifLeaf,  n: <span class="nm">12</span>, r1: <span class="nm">100</span>, r2: <span class="nm">190</span> });
+
+  <span class="cm">// Outer ring — 24 dots, thin outer band</span>
+  <span class="fn">ring</span>({ shape: motifDot,   n: <span class="nm">24</span>, r1: <span class="nm">190</span>, r2: <span class="nm">220</span> });
+}</pre>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Drawing Mandalas with Code · p5.js Workshop</footer>
+
+</body>
+</html>

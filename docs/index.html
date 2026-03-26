@@ -219,6 +219,50 @@
       line-height: 1.5;
     }
 
+    /* ── docs toolbar ── */
+    .docs-toolbar {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .docs-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: 0.25rem;
+      white-space: nowrap;
+    }
+
+    .docs-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.9rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+
+    .docs-btn:hover {
+      background: #1e1e2e;
+      border-color: var(--accent);
+      text-decoration: none;
+    }
+
     /* ── additional materials ── */
     .materials {
       margin-top: var(--gap);
@@ -270,6 +314,15 @@
     <h1>Drawing Mandalas with Code</h1>
     <p class="subtitle">Choose the setup that works best for you</p>
   </header>
+
+  <div class="docs-toolbar">
+    <span class="docs-label">Docs :</span>
+    <a class="docs-btn" href="Motif.html">✏️ Drawing Functions</a>
+    <a class="docs-btn" href="Mandala.html">🔄 Radial Repetition</a>
+    <a class="docs-btn"
+       href="https://drive.google.com/drive/folders/1lybZyAM4XaRwzCVEKXG8uUO8HZuhcIr4?usp=sharing"
+       target="_blank" rel="noopener">📦 Additional Downloads</a>
+  </div>
 
   <div class="cards">
 
