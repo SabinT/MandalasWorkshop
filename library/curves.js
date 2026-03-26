@@ -29,8 +29,8 @@ const ARC_DIVISIONS    = 32;
  * @param {number} x2
  * @param {number} y2
  */
-function LineCurve(x1, y1, x2, y2) {
-    this.divisions = LINE_DIVISIONS;
+function LineCurve(x1, y1, x2, y2, divisions) {
+    this.divisions = (divisions && divisions > 0) ? divisions : LINE_DIVISIONS;
     this.closed    = false;
 
     /**
@@ -63,8 +63,8 @@ function LineCurve(x1, y1, x2, y2) {
  * @param {number} x2   Anchor 2 x
  * @param {number} y2   Anchor 2 y
  */
-function BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
-    this.divisions = BEZIER_DIVISIONS;
+function BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2, divisions) {
+    this.divisions = (divisions && divisions > 0) ? divisions : BEZIER_DIVISIONS;
     this.closed    = false;
 
     /**
@@ -92,8 +92,8 @@ function BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
  * @param {number} cy  Centre y
  * @param {number} r   Radius
  */
-function CircleCurve(cx, cy, r) {
-    this.divisions = CIRCLE_DIVISIONS;
+function CircleCurve(cx, cy, r, divisions) {
+    this.divisions = (divisions && divisions > 0) ? divisions : CIRCLE_DIVISIONS;
     this.closed    = true;
 
     /**
@@ -119,9 +119,10 @@ function CircleCurve(cx, cy, r) {
  * @param {Array<{x:number,y:number}>} points  Vertices in motif space.
  * @param {boolean}                    closed   Whether to connect the last point back to the first.
  */
-function PolyCurve(points, closed) {
+function PolyCurve(points, closed, divisions) {
     const numSegments  = closed ? points.length : points.length - 1;
-    this.divisions     = numSegments * LINE_DIVISIONS;
+    const divPerEdge   = (divisions && divisions > 0) ? divisions : LINE_DIVISIONS;
+    this.divisions     = numSegments * divPerEdge;
     this.closed        = closed;
 
     /**
@@ -153,8 +154,8 @@ function PolyCurve(points, closed) {
  * @param {number} startAngle  Start angle in radians.
  * @param {number} endAngle    End angle in radians.
  */
-function ArcCurve(cx, cy, r, startAngle, endAngle) {
-    this.divisions = ARC_DIVISIONS;
+function ArcCurve(cx, cy, r, startAngle, endAngle, divisions) {
+    this.divisions = (divisions && divisions > 0) ? divisions : ARC_DIVISIONS;
     this.closed    = false;
 
     /**
@@ -180,8 +181,8 @@ function ArcCurve(cx, cy, r, startAngle, endAngle) {
  * @param {number} rx  Horizontal radius
  * @param {number} ry  Vertical radius
  */
-function EllipseCurve(cx, cy, rx, ry) {
-    this.divisions = CIRCLE_DIVISIONS;
+function EllipseCurve(cx, cy, rx, ry, divisions) {
+    this.divisions = (divisions && divisions > 0) ? divisions : CIRCLE_DIVISIONS;
     this.closed    = true;
 
     /**
@@ -206,10 +207,11 @@ function EllipseCurve(cx, cy, rx, ry) {
  *
  * @param {Array<{x:number,y:number}>} points  Control points in motif space.
  */
-function CatmullRomCurve(points) {
-    const numSegments  = Math.max(1, points.length - 1);
-    this.divisions     = numSegments * BEZIER_DIVISIONS;
-    this.closed        = false;
+function CatmullRomCurve(points, divisions) {
+    const numSegments   = Math.max(1, points.length - 1);
+    const divPerSegment = (divisions && divisions > 0) ? divisions : BEZIER_DIVISIONS;
+    this.divisions      = numSegments * divPerSegment;
+    this.closed         = false;
 
     /**
      * Evaluate the Catmull-Rom spline at parameter t ∈ [0, 1].

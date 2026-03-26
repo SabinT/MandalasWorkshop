@@ -25,13 +25,14 @@ function draw() {
     // Change the arguments to ring() to create different arrangements of your motif.
     // Add more lines like this to arrange more motifs.
     // Change color, thickness, etc before a ring() call to style that ring's motifs.
-    ring({ shape: yourMotif, n: 24, r1: 250, r2: 300 });
+    ring({ shape: allCommands, n: 24, r1: 250, r2: 300 });
 
     // This block is activated when you enable "Enable Debug Draw" in the UI.
     if (UI.showMotif) {
         // Show isolated motif designs in debug mode.
         // Add more lines like this to preview multiple motifs at once.
-        showMotif(yourMotif);
+        // showMotif(yourMotif);
+        showMotif(allCommands);
     }
 }
 
@@ -45,4 +46,17 @@ function yourMotif() {
     mLine(-10, 10, 10, 10);
     mLine(-10, 10, 0, -10);
     mLine(10, 10, 0, -10);
+}
+
+function allCommands() {
+    // This is a reference of all the available motif drawing commands.
+    // mLine(-10, -10, 10, 10, 1);
+
+    // mTriangle(-10, -10, 0, 10, 10, -10, 1);
+
+    // mBox(-10, -10, 20, 20, 1);
+
+    // mQuad(-10, -10, -5, 10, 5, 10, 10, -10);
+
+    mBezier(-10, -10, -10, -10, 10, 10, 10, -10);
 }

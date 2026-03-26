@@ -41,16 +41,16 @@ function setMotifSize(size) {
  * Draw a line in motif ("easy") space.
  * Coordinates are in [-s, s] where s is set by setMotifSize() (default 1).
  */
-function mLine(x1, y1, x2, y2) {
-    _pushCommand(new LineCurve(x1, y1, x2, y2));
+function mLine(x1, y1, x2, y2, divisions) {
+    _pushCommand(new LineCurve(x1, y1, x2, y2, divisions));
 }
 
 /**
  * Draw a circle in motif space.
  * The circle is approximated with vertices so it deforms correctly in polar space.
  */
-function mCircle(x, y, r) {
-    _pushCommand(new CircleCurve(x, y, r));
+function mCircle(x, y, r, divisions) {
+    _pushCommand(new CircleCurve(x, y, r, divisions));
 }
 
 /**
@@ -72,8 +72,8 @@ function mDot(x, y, r) {
  * Draw a cubic Bézier curve in motif space.
  * Arguments match p5.js bezier(): anchor1, control1, control2, anchor2
  */
-function mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
-    _pushCommand(new BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2));
+function mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2, divisions) {
+    _pushCommand(new BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2, divisions));
 }
 
 /**
@@ -87,8 +87,8 @@ function mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
  * @param {number} x3  Vertex 3 x
  * @param {number} y3  Vertex 3 y
  */
-function mTriangle(x1, y1, x2, y2, x3, y3) {
-    _pushCommand(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3)], true));
+function mTriangle(x1, y1, x2, y2, x3, y3, divisions) {
+    _pushCommand(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3)], true, divisions));
 }
 
 /**
@@ -105,8 +105,8 @@ function mTriangle(x1, y1, x2, y2, x3, y3) {
  * @param {number} x4  Vertex 4 x
  * @param {number} y4  Vertex 4 y
  */
-function mQuad(x1, y1, x2, y2, x3, y3, x4, y4) {
-    _pushCommand(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3), vec2(x4, y4)], true));
+function mQuad(x1, y1, x2, y2, x3, y3, x4, y4, divisions) {
+    _pushCommand(new PolyCurve([vec2(x1, y1), vec2(x2, y2), vec2(x3, y3), vec2(x4, y4)], true, divisions));
 }
 
 /**
@@ -115,8 +115,8 @@ function mQuad(x1, y1, x2, y2, x3, y3, x4, y4) {
  *
  * @param {Array<{x:number,y:number}>} points  Vertices in motif space.
  */
-function mShape(points) {
-    _pushCommand(new PolyCurve(points, true));
+function mShape(points, divisions) {
+    _pushCommand(new PolyCurve(points, true, divisions));
 }
 
 /**
@@ -124,8 +124,8 @@ function mShape(points) {
  *
  * @param {Array<{x:number,y:number}>} points  Vertices in motif space.
  */
-function mPath(points) {
-    _pushCommand(new PolyCurve(points, false));
+function mPath(points, divisions) {
+    _pushCommand(new PolyCurve(points, false, divisions));
 }
 
 /**
@@ -137,8 +137,8 @@ function mPath(points) {
  * @param {number} startAngle  Start angle in the sketch's current angleMode.
  * @param {number} endAngle    End angle in the sketch's current angleMode.
  */
-function mArc(cx, cy, r, startAngle, endAngle) {
-    _pushCommand(new ArcCurve(cx, cy, r, _toRadians(startAngle), _toRadians(endAngle)));
+function mArc(cx, cy, r, startAngle, endAngle, divisions) {
+    _pushCommand(new ArcCurve(cx, cy, r, _toRadians(startAngle), _toRadians(endAngle), divisions));
 }
 
 /** Convert an angle from the sketch's current angleMode to radians. */
@@ -155,8 +155,8 @@ function _toRadians(a) {
  * @param {number} rx  Horizontal radius.
  * @param {number} ry  Vertical radius.
  */
-function mEllipse(cx, cy, rx, ry) {
-    _pushCommand(new EllipseCurve(cx, cy, rx, ry));
+function mEllipse(cx, cy, rx, ry, divisions) {
+    _pushCommand(new EllipseCurve(cx, cy, rx, ry, divisions));
 }
 
 /**
@@ -164,8 +164,8 @@ function mEllipse(cx, cy, rx, ry) {
  *
  * @param {Array<{x:number,y:number}>} points  Control points in motif space.
  */
-function mCurve(points) {
-    _pushCommand(new CatmullRomCurve(points));
+function mCurve(points, divisions) {
+    _pushCommand(new CatmullRomCurve(points, divisions));
 }
 
 /**
@@ -198,10 +198,10 @@ function mDot(x, y, r) {
  * @param {number} w  Width.
  * @param {number} h  Height.
  */
-function mBox(x, y, w, h) {
+function mBox(x, y, w, h, divisions) {
     const x2 = x + w;
     const y2 = y + h;
-    _pushCommand(new PolyCurve([vec2(x, y), vec2(x2, y), vec2(x2, y2), vec2(x, y2)], true));
+    _pushCommand(new PolyCurve([vec2(x, y), vec2(x2, y), vec2(x2, y2), vec2(x, y2)], true, divisions));
 }
 
 // ------------------------------------------------------------
