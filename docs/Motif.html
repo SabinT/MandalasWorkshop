@@ -845,7 +845,7 @@
         </tbody>
       </table>
       <div class="example">
-        <p class="example-label">Example — working in a −10 to 10 coordinate space</p>
+        <p class="example-label">Example — working in a −10 to 10 motif space</p>
         <pre><span class="kw">const</span> MOTIF_SIZE = <span class="nm">10</span>;
 
 <span class="kw">function</span> <span class="fn">setup</span>() {
@@ -853,13 +853,9 @@
   <span class="fn">setMotifSize</span>(MOTIF_SIZE);  <span class="cm">// motif coords now range -10 to 10</span>
 }
 
-<span class="kw">function</span> <span class="fn">motifLeaf</span>() {
+<span class="kw">function</span> <span class="fn">sampleMotif</span>() {
   <span class="fn">mLine</span>(<span class="nm">0</span>, -<span class="nm">8</span>, <span class="nm">0</span>, <span class="nm">8</span>);  <span class="cm">// runs from near inner edge to near outer edge</span>
 }</pre>
-      </div>
-      <div class="tip">
-        💡 <code>showMotif()</code> automatically adapts its grid labels to the
-        current motif-space size, so axis labels always show the correct values.
       </div>
       <a class="back-to-top" href="#top">[back to top]</a>
     </div>
