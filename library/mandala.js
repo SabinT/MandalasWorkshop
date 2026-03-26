@@ -227,7 +227,7 @@ function drawCommandsInRing(commands, aCenter, aStep, r1, r2) {
  * @param {number} r2  Outer radius.
  */
 function drawPolarGrid(n, r1, r2) {
-    stroke(0, 25);
+    stroke(_smGetContrastBrightness(), 60);
     noFill();
 
     circle(0, 0, r1 * 2);
@@ -258,7 +258,7 @@ let _smActive      = false;   // true once showMotif() has been called
 /**
  * Preview / debug a motif function in an interactive fullscreen view.
  *
- * - Black background with a faint coordinate grid (4 major / 8 minor divisions).
+ * - Shared sketch background color with a faint coordinate grid (4 major / 8 minor divisions).
  * - Faint border outlining the [-1, 1] × [-1, 1] drawing space.
  * - Grid lines outside the drawing space are dimmer than those inside.
  * - Displays 1.25× the drawing space extents by default.
@@ -279,7 +279,7 @@ function showMotif(motifFn) {
         _smLastFrame = frameCount;
         push();
         resetMatrix();
-        background(0);
+        background(_smGetBackgroundColor());
         _smDrawGrid();
         pop();
     }
@@ -301,6 +301,38 @@ function showMotif(motifFn) {
 
 // ---- showMotif internal helpers ----------------------------------------
 
+/** Shared background color from sketch.js, with fallback for older sketches. */
+function _smGetBackgroundColor() {
+    return (globalThis.MANDALA_BG !== undefined) ? globalThis.MANDALA_BG : 0;
+}
+
+/** Approximate perceived brightness (0..255) of the configured background color. */
+function _smGetBackgroundBrightness() {
+    const bg = _smGetBackgroundColor();
+
+    if (typeof bg === 'number') {
+        return constrain(bg, 0, 255);
+    }
+
+    try {
+        const c = color(bg);
+        return 0.2126 * red(c) + 0.7152 * green(c) + 0.0722 * blue(c);
+    } catch (_err) {
+        return 0;
+    }
+}
+
+/**
+ * Grid/overlay target brightness with configurable contrast from background.
+ * Dark backgrounds get lighter overlays; light backgrounds get darker overlays.
+ */
+function _smGetContrastBrightness(multiplier = 1) {
+    const bg = _smGetBackgroundBrightness();
+    const delta = 255 * 0.30 * multiplier;
+    const sign = bg <= (255 * 0.5) ? 1 : -1;
+    return constrain(bg + sign * delta, 0, 255);
+}
+
 /** Pixel scale: maps 1 motif unit to this many pixels at the current zoom. */
 function _smScale() {
     return (Math.min(width, height) / (2 * 1.25)) * _smZoom;
@@ -311,6 +343,15 @@ function _smDrawGrid() {
     const sc = _smScale();
     const ox = width  / 2 + _smPanX;
     const oy = height / 2 + _smPanY;
+    const bg = _smGetBackgroundBrightness();
+    const majorTone = _smGetContrastBrightness();
+    const minorTone = lerp(bg, majorTone, 0.65);
+    const outsideTone = lerp(bg, majorTone, 0.35);
+    const boxTone = lerp(bg, majorTone, 0.85);
+    const xLeft = -1 * sc + ox;
+    const xRight = 1 * sc + ox;
+    const yTop = -1 * sc + oy;
+    const yBottom = 1 * sc + oy;
 
     // Visible motif-space range
     const mxMin = (0      - ox) / sc;
@@ -322,10 +363,6 @@ function _smDrawGrid() {
     //       major step 0.50 (4 divisions in [-1,1], every 2 minor steps)
     const minorStep = 0.25;
     const majorPer  = 2;     // major line every majorPer minor steps
-
-    const dimOutside = 10;   // brightness for lines outside [-1, 1]²
-    const dimMinor   = 22;   // brightness for minor lines inside
-    const dimMajor   = 45;   // brightness for major lines inside
 
     noFill();
     strokeWeight(1);
@@ -340,9 +377,19 @@ function _smDrawGrid() {
         const mx     = i * minorStep;
         const inside = mx >= -1 && mx <= 1;
         const major  = (i % majorPer === 0);
-        stroke(inside ? (major ? dimMajor : dimMinor) : dimOutside);
         const sx = mx * sc + ox;
-        line(sx, 0, sx, height);
+
+        if (inside) {
+            stroke(outsideTone);
+            line(sx, 0, sx, yTop);
+            line(sx, yBottom, sx, height);
+
+            stroke(major ? majorTone : minorTone);
+            line(sx, yTop, sx, yBottom);
+        } else {
+            stroke(outsideTone);
+            line(sx, 0, sx, height);
+        }
     }
 
     // Horizontal grid lines
@@ -350,13 +397,23 @@ function _smDrawGrid() {
         const my     = j * minorStep;
         const inside = my >= -1 && my <= 1;
         const major  = (j % majorPer === 0);
-        stroke(inside ? (major ? dimMajor : dimMinor) : dimOutside);
         const sy = my * sc + oy;
-        line(0, sy, width, sy);
+
+        if (inside) {
+            stroke(outsideTone);
+            line(0, sy, xLeft, sy);
+            line(xRight, sy, width, sy);
+
+            stroke(major ? majorTone : minorTone);
+            line(xLeft, sy, xRight, sy);
+        } else {
+            stroke(outsideTone);
+            line(0, sy, width, sy);
+        }
     }
 
     // Faint box outlining the [-1, 1] × [-1, 1] drawing space
-    stroke(75);
+    stroke(boxTone);
     strokeWeight(1);
     rect(-1 * sc + ox, -1 * sc + oy, 2 * sc, 2 * sc);
 }
@@ -391,9 +448,11 @@ function _smDrawOverlay() {
     const oy  = height / 2 + _smPanY;
     const mxM = (mouseX - ox) / sc;
     const myM = (mouseY - oy) / sc;
+    const overlayTone = _smGetContrastBrightness();
+    const labelTone = _smGetContrastBrightness(2);
 
     // Crosshair lines
-    stroke(90);
+    stroke(overlayTone);
     strokeWeight(1);
     noFill();
     line(mouseX, 0, mouseX, height);
@@ -402,7 +461,7 @@ function _smDrawOverlay() {
     // Coordinate label
     const label = '(' + mxM.toFixed(2) + ', ' + myM.toFixed(2) + ')';
     noStroke();
-    fill(210);
+    fill(labelTone);
     textSize(13);
     textFont('monospace');
     textAlign(LEFT, TOP);

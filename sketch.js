@@ -12,13 +12,18 @@
 //   mPath(), mArc(), mEllipse(), or mCurve() inside a motif function.
 // ============================================================
 
+// Change this one value to update both the full mandala view and showMotif().
+// You can use grayscale numbers like 255 or hex colors like "#ffffff".
+const MANDALA_BG = "#accbbc";
+globalThis.MANDALA_BG = MANDALA_BG;
+
 function setup() {
     createCanvas(1000, 1000);
     angleMode(RADIANS);
 }
 
 function draw() {
-    background(255);
+    background(MANDALA_BG);
     translate(width / 2, height / 2);
 
     // Faint grid to visualize the outermost ring segments
@@ -53,6 +58,9 @@ function draw() {
     stroke(0);
     fill("rgba(255, 200, 0, 0.5)");
     ring({ shape: motifTile,    n: 16, r1: 460, r2: 490 });
+
+    showMotif(motifPetal);
+    showMotif(motifStar);
 }
 
 // ── Ring 1: Leaf — mLine, mBezier, mCircle ───────────────────
@@ -84,7 +92,7 @@ function motifFeather() {
 // ── Ring 3: Petal — mEllipse, mPath ──────────────────────────
 function motifPetal() {
     // Tall ellipse petal
-    mEllipse(0, 0, 0.32, 0.82);
+    mEllipse(0, 0, 0.52, 0.52);
     // Decorative vein running through the petal
     mPath([
         vec2( 0,   -0.7),
