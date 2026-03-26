@@ -328,9 +328,11 @@ function _captureWithMotifTransforms(shapeFn) {
 
 /** Curve wrapper that evaluates the base curve, then applies an affine transform. */
 function TransformedCurve(base, matrix) {
+    this.base      = base;
+    this.matrix    = matrix;
     this.divisions = base.divisions;
-    this.closed = base.closed;
-    this.evaluate = function (t) {
+    this.closed    = base.closed;
+    this.evaluate  = function (t) {
         const p = base.evaluate(t);
         return _mfApply(matrix, p.x, p.y);
     };
@@ -542,6 +544,7 @@ let _smDragPanY0   = 0;
 let _smLastFrame   = -1;      // frameCount when background was last cleared
 let _smActive      = false;   // true once showMotif() has been called
 let _smGridLinesVisible = true; // toggle only grid lines (box/labels stay visible)
+let _smDebugDraw   = false;   // show control-point handles for bezier/catmullrom
 
 /** Control whether showMotif() draws grid lines (box and labels are always shown). */
 function setShowMotifGridVisible(visible) {
@@ -551,6 +554,16 @@ function setShowMotifGridVisible(visible) {
 /** Read current showMotif() grid-line visibility state. */
 function isShowMotifGridVisible() {
     return _smGridLinesVisible;
+}
+
+/** Control whether showMotif() draws Bézier and Catmull-Rom control-point handles. */
+function setMotifDebugDraw(enabled) {
+    _smDebugDraw = !!enabled;
+}
+
+/** Read current debug-draw state. */
+function isMotifDebugDrawEnabled() {
+    return _smDebugDraw;
 }
 
 /**
@@ -792,6 +805,70 @@ function _smDrawCommands(commands, sc, ox, oy) {
             }
         }
     }
+
+    // Debug-draw control-point handles on top of the curves
+    if (_smDebugDraw) {
+        for (const cmd of commands) {
+            _smDrawDebugCmd(cmd, sc, ox, oy);
+        }
+    }
+}
+
+/**
+ * Draw control-point handles for a single command when debug draw is enabled.
+ * Handles TransformedCurve wrappers by applying their stored matrix.
+ */
+function _smDrawDebugCmd(cmd, sc, ox, oy) {
+    // Unwrap a TransformedCurve to access raw base data
+    const base   = (cmd.base !== undefined) ? cmd.base   : cmd;
+    const matrix = (cmd.base !== undefined) ? cmd.matrix : null;
+
+    const toScreen = (x, y) => {
+        const p = matrix ? _mfApply(matrix, x, y) : vec2(x, y);
+        return vec2(p.x * sc + ox, p.y * sc + oy);
+    };
+
+    push();
+
+    if (base.kind === 'bezier') {
+        const p1  = toScreen(base.x1,  base.y1);
+        const cp1 = toScreen(base.cx1, base.cy1);
+        const cp2 = toScreen(base.cx2, base.cy2);
+        const p2  = toScreen(base.x2,  base.y2);
+
+        stroke(255, 120, 0, 180);
+        strokeWeight(1);
+        noFill();
+        line(p1.x, p1.y, cp1.x, cp1.y);
+        line(p2.x, p2.y, cp2.x, cp2.y);
+
+        noStroke();
+        fill(255, 120, 0, 220);
+        circle(cp1.x, cp1.y, 8);
+        circle(cp2.x, cp2.y, 8);
+
+    } else if (base.kind === 'catmullrom') {
+        const pts = base.points;
+        if (!pts || pts.length < 2) { pop(); return; }
+
+        stroke(255, 120, 0, 180);
+        strokeWeight(1);
+        noFill();
+        for (let i = 0; i < pts.length - 1; i++) {
+            const a = toScreen(pts[i].x,     pts[i].y);
+            const b = toScreen(pts[i + 1].x, pts[i + 1].y);
+            line(a.x, a.y, b.x, b.y);
+        }
+
+        noStroke();
+        fill(255, 120, 0, 220);
+        for (const pt of pts) {
+            const p = toScreen(pt.x, pt.y);
+            circle(p.x, p.y, 8);
+        }
+    }
+
+    pop();
 }
 
 /** Draw the crosshair lines and coordinate label at the current cursor position. */

@@ -6,20 +6,24 @@ class WorkshopSketchUI {
     constructor({
         debugStorageKey = 'mandalasWorkshop.debugDraw',
         gridStorageKey = 'mandalasWorkshop.showMotifGrid',
-        gridDivisionsStorageKey = 'mandalasWorkshop.polarGridDivisions'
+        gridDivisionsStorageKey = 'mandalasWorkshop.polarGridDivisions',
+        motifDebugDrawStorageKey = 'mandalasWorkshop.motifDebugDraw'
     } = {}) {
         this.debugStorageKey = debugStorageKey;
         this.gridStorageKey = gridStorageKey;
         this.gridDivisionsStorageKey = gridDivisionsStorageKey;
+        this.motifDebugDrawStorageKey = motifDebugDrawStorageKey;
         this.showMotif = this._loadDebugDraw();
         this.showMotifGrid = this._loadShowMotifGrid();
         this.polarGridDivisions = this._loadPolarGridDivisions();
+        this.debugDraw = this._loadMotifDebugDraw();
         this.canvasContainer = null;
         this.toolbar = null;
         this.showMotifButton = null;
         this.gridToggleButton = null;
         this.gridDivisionsContainer = null;
         this.gridDivisionsInput = null;
+        this.debugDrawButton = null;
         this.exportButton = null;
         this.canvas = null;
 
@@ -52,6 +56,10 @@ class WorkshopSketchUI {
 
             if (typeof globalThis.setShowMotifGridVisible === 'function') {
                 globalThis.setShowMotifGridVisible(ui.showMotifGrid);
+            }
+
+            if (typeof globalThis.setMotifDebugDraw === 'function') {
+                globalThis.setMotifDebugDraw(ui.debugDraw);
             }
 
             if (userSetup) userSetup.call(this);
@@ -120,12 +128,19 @@ class WorkshopSketchUI {
         this.exportButton.parent(this.toolbar);
         this.exportButton.mousePressed(() => this.exportPng());
 
+        this.debugDrawButton = createButton('');
+        this.debugDrawButton.parent(this.toolbar);
+        this.debugDrawButton.mousePressed(() => this.toggleMotifDebugDraw());
+
         this._styleToolbarButton(this.showMotifButton);
         this._styleToolbarButton(this.gridToggleButton);
         this._styleToolbarButton(this.exportButton);
+        this._styleToolbarButton(this.debugDrawButton);
         this._updateDebugToggleLabel();
         this._updateGridToggleLabel();
         this._updateGridDivisionsVisibility();
+        this._updateMotifDebugButtonVisibility();
+        this._updateMotifDebugButtonLabel();
 
         this.canvas.parent(this.canvasContainer);
         return this.canvas;
@@ -136,6 +151,7 @@ class WorkshopSketchUI {
         this._saveDebugDraw();
         this._updateDebugToggleLabel();
         this._updateGridDivisionsVisibility();
+        this._updateMotifDebugButtonVisibility();
     }
 
     isShowMotifGridEnabled() {
@@ -154,6 +170,19 @@ class WorkshopSketchUI {
 
     getPolarGridDivisions() {
         return this.polarGridDivisions;
+    }
+
+    toggleMotifDebugDraw() {
+        this.debugDraw = !this.debugDraw;
+        this._saveMotifDebugDraw();
+        if (typeof globalThis.setMotifDebugDraw === 'function') {
+            globalThis.setMotifDebugDraw(this.debugDraw);
+        }
+        this._updateMotifDebugButtonLabel();
+    }
+
+    isMotifDebugDrawEnabled() {
+        return this.debugDraw;
     }
 
     exportPng(filename = 'mandala') {
@@ -187,6 +216,14 @@ class WorkshopSketchUI {
         localStorage.setItem(this.gridDivisionsStorageKey, String(this.polarGridDivisions));
     }
 
+    _loadMotifDebugDraw() {
+        return localStorage.getItem(this.motifDebugDrawStorageKey) === 'true';
+    }
+
+    _saveMotifDebugDraw() {
+        localStorage.setItem(this.motifDebugDrawStorageKey, String(this.debugDraw));
+    }
+
     _updateDebugToggleLabel() {
         if (!this.showMotifButton) return;
         this.showMotifButton.html(this.showMotif ? 'Show Mandala' : 'Show Motif');
@@ -200,6 +237,16 @@ class WorkshopSketchUI {
     _updateGridDivisionsVisibility() {
         if (!this.gridDivisionsContainer) return;
         this.gridDivisionsContainer.style('display', (this.showMotifGrid && !this.showMotif) ? 'flex' : 'none');
+    }
+
+    _updateMotifDebugButtonVisibility() {
+        if (!this.debugDrawButton) return;
+        this.debugDrawButton.style('display', this.showMotif ? '' : 'none');
+    }
+
+    _updateMotifDebugButtonLabel() {
+        if (!this.debugDrawButton) return;
+        this.debugDrawButton.html(this.debugDraw ? 'Hide Debug' : 'Show Debug');
     }
 
     _styleToolbarButton(button) {
