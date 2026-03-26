@@ -218,15 +218,20 @@ function mBox(x, y, w, h) {
  * @param {number}   opts.r2     Outer radius in pixels.
  * @param {number}   [opts.offset=0]  Segment offset in units of (360 / n) degrees.
  *                                     Example: 1 shifts by one full segment; 0.5 gives a half-step repeat.
+ * @param {number}   [opts.gapDegrees=0]  Angular gap between adjacent elements, in degrees.
+ *                                         Maximum useful value is 360 / n.
  */
-function ring({ shape, n, r1, r2, offset = 0 }) {
+function ring({ shape, n, r1, r2, offset = 0, gapDegrees = 0 }) {
     const commands = captureMotif(shape);
     const angleStep = (Math.PI * 2) / n;
     const angleOffset = offset * angleStep;
+    const maxGapDegrees = 360 / n;
+    const clampedGapDegrees = Math.max(0, Math.min(gapDegrees, maxGapDegrees));
+    const occupiedAngleStep = angleStep - (clampedGapDegrees * (Math.PI / 180));
 
     for (let i = 0; i < n; i++) {
         const aCenter = (i + 0.5) * angleStep + angleOffset;
-        drawCommandsInRing(commands, aCenter, angleStep, r1, r2);
+        drawCommandsInRing(commands, aCenter, occupiedAngleStep, r1, r2);
     }
 }
 

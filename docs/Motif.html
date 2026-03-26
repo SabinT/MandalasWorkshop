@@ -354,7 +354,7 @@
         <li><a href="#mPath">mPath(points)</a></li>
         <li><a href="#mCurve">mCurve(points)</a></li>
         <li><a href="#mBox">mBox(x, y, w, h)</a></li>
-        <li><a href="#ring">ring({ shape, n, r1, r2, offset })</a></li>
+        <li><a href="#ring">ring({ shape, n, r1, r2, offset, gapDegrees })</a></li>
         <li><a href="#setMotifSize">setMotifSize(size)</a></li>
       </ul>
       <a class="back-to-top" href="#top">[back to top]</a>
@@ -735,7 +735,7 @@
         Call this from inside <code>draw()</code> after
         <code>translate(width/2, height/2)</code>.
       </p>
-      <code class="fn-sig">ring({ shape, n, r1, r2, offset })</code>
+      <code class="fn-sig">ring({ shape, n, r1, r2, offset, gapDegrees })</code>
       <table class="param-table">
         <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
         <tbody>
@@ -780,6 +780,15 @@
               <strong>Segment offset.</strong> Rotates the entire ring by a fraction of
               one segment. <code>0.5</code> shifts by a half-segment — useful for
               interleaving two rings of the same motif. Defaults to <code>0</code>.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">gapDegrees</td>
+            <td class="param-type">number (optional, default 0)</td>
+            <td>
+              <strong>Angular gap</strong> between adjacent elements, in degrees.
+              Shrinks each motif's angular extent so there is empty space between
+              neighbours. Maximum useful value is <code>360 / n</code>. Defaults to <code>0</code>.
             </td>
           </tr>
         </tbody>
