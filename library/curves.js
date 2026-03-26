@@ -64,6 +64,11 @@ function LineCurve(x1, y1, x2, y2, divisions) {
  * @param {number} y2   Anchor 2 y
  */
 function BezierCurve(x1, y1, cx1, cy1, cx2, cy2, x2, y2, divisions) {
+    this.kind      = 'bezier';
+    this.x1  = x1;  this.y1  = y1;
+    this.cx1 = cx1; this.cy1 = cy1;
+    this.cx2 = cx2; this.cy2 = cy2;
+    this.x2  = x2;  this.y2  = y2;
     this.divisions = (divisions && divisions > 0) ? divisions : BEZIER_DIVISIONS;
     this.closed    = false;
 
@@ -208,6 +213,8 @@ function EllipseCurve(cx, cy, rx, ry, divisions) {
  * @param {Array<{x:number,y:number}>} points  Control points in motif space.
  */
 function CatmullRomCurve(points, divisions) {
+    this.kind           = 'catmullrom';
+    this.points         = points;
     const numSegments   = Math.max(1, points.length - 1);
     const divPerSegment = (divisions && divisions > 0) ? divisions : BEZIER_DIVISIONS;
     this.divisions      = numSegments * divPerSegment;
