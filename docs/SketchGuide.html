@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sketch Guide — Mandalas Workshop Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e0e14;
+      --surface:   #16161f;
+      --border:    #2a2a3a;
+      --accent:    #c084fc;
+      --accent2:   #818cf8;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+      --tag-bg:    #1e1e2e;
+      --radius:    10px;
+      --gap:       1.25rem;
+    }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem 3rem;
+    }
+
+    /* ── nav / back button ── */
+    .top-nav {
+      width: 100%;
+      max-width: 860px;
+      margin-bottom: 1.75rem;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .back-btn:hover {
+      border-color: var(--accent2);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    /* ── header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .workshop-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      font-weight: 400;
+    }
+
+    /* ── content ── */
+    .content {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    /* ── section card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.5rem 1.75rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      background: #2d1b4e;
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    p {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    p + p { margin-top: 0.75rem; }
+
+    /* ── section heading inside card ── */
+    .section-heading {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 1.4rem 0 0.5rem;
+    }
+
+    /* ── function signature ── */
+    .fn-sig {
+      display: block;
+      margin: 1rem 0;
+      padding: 0.75rem 1rem;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* ── param table ── */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+    }
+
+    .param-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .param-table td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    .param-table tr:last-child td { border-bottom: none; }
+
+    .param-name {
+      font-family: 'Courier New', monospace;
+      color: var(--accent2);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .param-type {
+      color: var(--muted);
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+    }
+
+    /* ── example block ── */
+    .example {
+      margin-top: 1.25rem;
+    }
+
+    .example-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      overflow-x: auto;
+      line-height: 1.55;
+    }
+
+    .kw  { color: #c084fc; }   /* keyword  */
+    .fn  { color: #818cf8; }   /* function name */
+    .cm  { color: #4a5568; }   /* comment */
+    .nm  { color: #68d391; }   /* number literal */
+    .str { color: #f6ad55; }   /* string */
+
+    /* ── tip ── */
+    .tip {
+      margin-top: 1rem;
+      padding: 0.65rem 0.9rem;
+      background: #111827;
+      border-left: 3px solid var(--accent2);
+      border-radius: 4px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── diagram / axis table ── */
+    .axis-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+    }
+
+    .axis-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .axis-table td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    .axis-table tr:last-child td { border-bottom: none; }
+
+    kbd, code {
+      font-family: 'Courier New', monospace;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    /* ── footer ── */
+    footer {
+      margin-top: 2.25rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="back-btn" href="index.html">← Back to Home</a>
+  </nav>
+
+  <header>
+    <p class="workshop-label">Guide</p>
+    <h1>Sketch Guide</h1>
+    <p class="subtitle">Understanding the starter sketch and making it your own</p>
+  </header>
+
+  <div class="content">
+
+    <!-- ── The Starter Sketch ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📄</div>
+        <span class="card-title">The Starter Sketch</span>
+      </div>
+      <p>
+        All your work happens in <code>sketch.js</code>. The file is organised
+        into three parts: <strong>global settings</strong>, the
+        <strong><code>setup()</code> / <code>draw()</code></strong> functions
+        provided by p5.js, and one or more <strong>motif functions</strong> that
+        you design.
+      </p>
+
+      <div class="example">
+        <p class="example-label">sketch.js — annotated</p>
+        <pre><span class="cm">// ── Global settings ───────────────────────────────────────</span>
+<span class="kw">const</span> MANDALA_BG  = <span class="str">"#accbbc"</span>;  <span class="cm">// background colour</span>
+<span class="kw">const</span> CANVAS_SIZE = <span class="nm">1000</span>;        <span class="cm">// canvas width &amp; height in pixels</span>
+<span class="kw">const</span> MOTIF_SIZE  = <span class="nm">10</span>;          <span class="cm">// half-extent of motif space (coords: -10 to 10)</span>
+<span class="kw">const</span> UI = <span class="kw">new</span> <span class="fn">WorkshopSketchUI</span>(); <span class="cm">// toolbar with debug toggle &amp; export</span>
+
+<span class="cm">// ── p5.js lifecycle ───────────────────────────────────────</span>
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  <span class="fn">createCanvas</span>(CANVAS_SIZE, CANVAS_SIZE);
+  <span class="fn">setMotifSize</span>(MOTIF_SIZE);  <span class="cm">// tell the library the motif-space scale</span>
+  <span class="fn">angleMode</span>(DEGREES);        <span class="cm">// use degrees for all angle values</span>
+}
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  <span class="fn">background</span>(MANDALA_BG);
+  <span class="fn">translate</span>(width / <span class="nm">2</span>, height / <span class="nm">2</span>); <span class="cm">// move origin to canvas centre</span>
+
+  <span class="cm">// ── Arrange your motifs here ──────────────────────────</span>
+  <span class="fn">ring</span>({ shape: yourMotif, n: <span class="nm">12</span>, r1: <span class="nm">100</span>, r2: <span class="nm">130</span> });
+
+  <span class="cm">// ── Debug view (toggled from the toolbar) ─────────────</span>
+  <span class="kw">if</span> (UI.<span class="fn">isDebugDrawEnabled</span>()) {
+    <span class="fn">showMotif</span>(yourMotif);  <span class="cm">// preview motif in isolation</span>
+  }
+}
+
+<span class="cm">// ── Your motif ────────────────────────────────────────────</span>
+<span class="kw">function</span> <span class="fn">yourMotif</span>() {
+  <span class="cm">// Design your shape here using mLine, mBezier, mTriangle, etc.</span>
+  <span class="fn">mLine</span>(-<span class="nm">10</span>, <span class="nm">10</span>,  <span class="nm">10</span>, <span class="nm">10</span>);
+  <span class="fn">mLine</span>(-<span class="nm">10</span>, <span class="nm">10</span>,   <span class="nm">0</span>, -<span class="nm">10</span>);
+  <span class="fn">mLine</span>( <span class="nm">10</span>, <span class="nm">10</span>,   <span class="nm">0</span>, -<span class="nm">10</span>);
+}</pre>
+      </div>
+
+      <div class="tip">
+        💡 Enable <strong>Debug Draw</strong> from the toolbar to see your motif
+        drawn flat, with the motif-space grid and coordinate labels. This makes
+        it much easier to position shapes precisely.
+      </div>
+    </div>
+
+    <!-- ── Key Concepts ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📐</div>
+        <span class="card-title">Key Concepts</span>
+      </div>
+
+      <p class="section-heading">Motif</p>
+      <p>
+        A <strong>motif</strong> is the small, repeating element of your mandala — a
+        shape or drawing you define as a JavaScript function. It is designed in a flat
+        coordinate space, then automatically placed around a ring.
+      </p>
+
+      <hr class="divider" />
+
+      <p class="section-heading">Motif Space</p>
+      <p>
+        Motifs are drawn in a square coordinate system called <strong>motif space</strong>.
+        Both x and y run from <strong>−S to +S</strong>, where S is the value you pass to
+        <code>setMotifSize(S)</code> (the starter sketch uses <code>S = 10</code>, so
+        coordinates go from −10 to 10).
+      </p>
+      <p>
+        Think of motif space as a blank tile — you draw whatever shape you like on it,
+        and the library handles the rest.
+      </p>
+
+      <table class="axis-table">
+        <thead>
+          <tr>
+            <th>Axis</th>
+            <th>Range</th>
+            <th>Meaning inside a ring segment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-name">x</td>
+            <td class="param-type">−S … +S</td>
+            <td>
+              <strong>Angular position.</strong>
+              −S is the left edge of the segment, 0 is its centre, +S is the right edge.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">y</td>
+            <td class="param-type">−S … +S</td>
+            <td>
+              <strong>Radial position.</strong>
+              −S sits at the inner radius (<code>r1</code>),
+              +S sits at the outer radius (<code>r2</code>).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr class="divider" />
+
+      <p class="section-heading">Mandala Space</p>
+      <p>
+        <strong>Mandala space</strong> is the canvas itself, with the origin at the
+        centre (after <code>translate(width/2, height/2)</code>). Distances are
+        measured in pixels.
+      </p>
+
+      <hr class="divider" />
+
+      <p class="section-heading">The Transformation</p>
+      <p>
+        When you call <code>ring()</code>, the library maps your flat motif from motif
+        space into polar coordinates on the canvas:
+      </p>
+      <p>
+        The full circle is divided into <em>n</em> equal angular slices of 360°/<em>n</em>
+        each. For each slice, every point <code>(x, y)</code> in motif space is converted
+        to an angle (from x) and a radius (from y), then placed on the canvas in the
+        correct position. This is what stretches and curves the flat tile into a ring
+        segment.
+      </p>
+
+      <div class="tip">
+        💡 Because y maps to radius, shapes near y = +S appear at the outer edge of
+        the ring and shapes near y = −S appear at the inner edge.
+      </div>
+    </div>
+
+    <!-- ── Creating a Motif ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">✏️</div>
+        <span class="card-title">Creating a Motif</span>
+      </div>
+      <p>
+        A motif is a plain JavaScript function. Inside it, you call the
+        <strong>motif drawing functions</strong> (<code>mLine</code>,
+        <code>mBezier</code>, <code>mCircle</code>, <code>mTriangle</code>, etc.)
+        to describe your shape in motif space. Do <em>not</em> use regular p5.js
+        drawing functions (<code>line()</code>, <code>ellipse()</code>, …) inside a
+        motif — they will not transform correctly.
+      </p>
+
+      <div class="example">
+        <p class="example-label">Step 1 — define a motif function</p>
+        <pre><span class="kw">function</span> <span class="fn">motifLeaf</span>() {
+  <span class="cm">// Left and right Bézier edges form a leaf shape.</span>
+  <span class="cm">// Coordinates are in motif space (-10 to 10 when MOTIF_SIZE = 10).</span>
+  <span class="fn">mBezier</span>(<span class="nm">0</span>, -<span class="nm">10</span>,  -<span class="nm">8</span>, -<span class="nm">2</span>,  -<span class="nm">6</span>, <span class="nm">8</span>,  <span class="nm">0</span>, <span class="nm">10</span>);
+  <span class="fn">mBezier</span>(<span class="nm">0</span>, -<span class="nm">10</span>,   <span class="nm">8</span>, -<span class="nm">2</span>,   <span class="nm">6</span>, <span class="nm">8</span>,  <span class="nm">0</span>, <span class="nm">10</span>);
+}</pre>
+      </div>
+
+      <div class="example">
+        <p class="example-label">Step 2 — pass it to ring() in draw()</p>
+        <pre><span class="kw">function</span> <span class="fn">draw</span>() {
+  <span class="fn">background</span>(MANDALA_BG);
+  <span class="fn">translate</span>(width / <span class="nm">2</span>, height / <span class="nm">2</span>);
+
+  stroke(<span class="nm">255</span>);
+  noFill();
+  <span class="fn">ring</span>({ shape: motifLeaf, n: <span class="nm">12</span>, r1: <span class="nm">80</span>, r2: <span class="nm">200</span> });
+}</pre>
+      </div>
+
+      <div class="tip">
+        💡 For a full list of available drawing functions — <code>mLine</code>,
+        <code>mBezier</code>, <code>mCircle</code>, <code>mDot</code>,
+        <code>mEllipse</code>, <code>mArc</code>, <code>mTriangle</code>,
+        <code>mQuad</code>, <code>mShape</code>, <code>mPath</code>,
+        <code>mCurve</code> — see the
+        <a href="Motif.html">✏️ Drawing Functions</a> reference page.
+      </div>
+    </div>
+
+    <!-- ── Arranging Motifs in a Ring ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🔄</div>
+        <span class="card-title">Arranging Motifs in a Ring</span>
+      </div>
+      <p>
+        The <code>ring()</code> function repeats a motif evenly around a circular
+        band on the canvas. Call it once per ring from inside <code>draw()</code>.
+      </p>
+
+      <code class="fn-sig">ring({ shape, n, r1, r2 })</code>
+
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-name">shape</td>
+            <td class="param-type">function</td>
+            <td>Your motif function (no parentheses — pass the reference, not the result).</td>
+          </tr>
+          <tr>
+            <td class="param-name">n</td>
+            <td class="param-type">number</td>
+            <td>Number of repetitions. The full 360° is divided evenly. Try 6, 8, 12, 16, 24.</td>
+          </tr>
+          <tr>
+            <td class="param-name">r1</td>
+            <td class="param-type">number (px)</td>
+            <td>Inner radius in pixels (corresponds to y = −S in motif space).</td>
+          </tr>
+          <tr>
+            <td class="param-name">r2</td>
+            <td class="param-type">number (px)</td>
+            <td>Outer radius in pixels (corresponds to y = +S in motif space). Must be greater than <code>r1</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="example">
+        <p class="example-label">Example — a single ring</p>
+        <pre><span class="fn">ring</span>({ shape: yourMotif, n: <span class="nm">12</span>, r1: <span class="nm">100</span>, r2: <span class="nm">200</span> });</pre>
+      </div>
+
+      <div class="example">
+        <p class="example-label">Example — layering multiple rings</p>
+        <pre><span class="kw">function</span> <span class="fn">draw</span>() {
+  <span class="fn">background</span>(MANDALA_BG);
+  <span class="fn">translate</span>(width / <span class="nm">2</span>, height / <span class="nm">2</span>);
+
+  stroke(<span class="nm">255</span>);
+  noFill();
+
+  <span class="cm">// Inner ring — 8 repetitions, narrow band</span>
+  <span class="fn">ring</span>({ shape: motifA, n: <span class="nm">8</span>,  r1: <span class="nm">60</span>,  r2: <span class="nm">120</span> });
+
+  <span class="cm">// Middle ring — 12 repetitions, wider band</span>
+  <span class="fn">ring</span>({ shape: motifB, n: <span class="nm">12</span>, r1: <span class="nm">120</span>, r2: <span class="nm">220</span> });
+
+  <span class="cm">// Outer ring — 24 repetitions, thin accent band</span>
+  <span class="fn">ring</span>({ shape: motifC, n: <span class="nm">24</span>, r1: <span class="nm">220</span>, r2: <span class="nm">260</span> });
+}</pre>
+      </div>
+
+      <div class="tip">
+        💡 Set stroke colour, fill, and stroke weight with the standard p5.js calls
+        (<code>stroke()</code>, <code>fill()</code>, <code>strokeWeight()</code>)
+        <em>before</em> each <code>ring()</code> call to style rings independently.
+        Wrap each ring in <code>push()</code> / <code>pop()</code> to keep styles
+        isolated.<br /><br />
+        For full documentation on <code>ring()</code> and
+        <code>setMotifSize()</code>, see the
+        <a href="Motif.html#ring">✏️ Drawing Functions</a> reference page.
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Drawing Mandalas with Code · p5.js Workshop</footer>
+
+</body>
+</html>
