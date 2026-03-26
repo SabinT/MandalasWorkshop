@@ -697,44 +697,6 @@
       <a class="back-to-top" href="#top">[back to top]</a>
     </div>
 
-    <!-- ── Stroke & Fill ── -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">🎨</div>
-        <span class="card-title">Stroke &amp; Fill</span>
-      </div>
-      <p>
-        You can use standard p5.js <code>stroke()</code>, <code>fill()</code>,
-        <code>noStroke()</code>, <code>noFill()</code>, and
-        <code>strokeWeight()</code> calls <strong>before</strong> calling
-        <code>ring()</code> to control how the motif is drawn.
-      </p>
-      <p>
-        Closed shapes (<code>mCircle</code>, <code>mEllipse</code>,
-        <code>mTriangle</code>, <code>mQuad</code>, <code>mShape</code>, <code>mBox</code>) respect
-        both stroke and fill. Open shapes (<code>mLine</code>, <code>mBezier</code>,
-        <code>mArc</code>, <code>mPath</code>, <code>mCurve</code>) are stroke only.
-      </p>
-      <div class="example">
-        <p class="example-label">Example</p>
-        <pre><span class="kw">function</span> <span class="fn">draw</span>() {
-  background(<span class="nm">20</span>);
-  <span class="fn">translate</span>(width / <span class="nm">2</span>, height / <span class="nm">2</span>);
-
-  stroke(<span class="nm">200</span>, <span class="nm">100</span>, <span class="nm">255</span>);   <span class="cm">// purple stroke</span>
-  fill(<span class="nm">100</span>, <span class="nm">50</span>, <span class="nm">150</span>, <span class="nm">180</span>);  <span class="cm">// semi-transparent fill</span>
-  strokeWeight(<span class="nm">1.5</span>);
-  <span class="fn">ring</span>({ shape: motifLeaf, n: <span class="nm">12</span>, r1: <span class="nm">80</span>, r2: <span class="nm">160</span> });
-}</pre>
-      </div>
-
-      <div class="tip">
-        💡 Call <code>push()</code> and <code>pop()</code> around each <code>ring()</code>
-        call if you want to isolate stroke/fill settings for different rings.
-      </div>
-      <a class="back-to-top" href="#top">[back to top]</a>
-    </div>
-
     <!-- ── ring() ── -->
     <div class="card" id="ring">
       <div class="card-header">
