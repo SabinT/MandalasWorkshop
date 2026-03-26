@@ -132,6 +132,9 @@
     <script>
     // ── Capture console errors and display them on-page ───────
     (function () {
+        // Only enable error console on localhost; hide on hosted platforms (e.g., editor.p5js.org)
+        var isLocalDev = /^localhost$|^127\.0\.0\.1$/.test(window.location.hostname);
+        
         var panel    = document.getElementById("error-panel");
         var list     = document.getElementById("error-list");
         var counter  = document.getElementById("error-count");
@@ -189,6 +192,7 @@
         }
 
         function addError(summary, location, detail) {
+            if (!isLocalDev) return;  // Don't display errors on hosted environments
             count++;
             panel.style.display = "flex";
             counter.textContent = count + (count === 1 ? " error" : " errors");
@@ -284,6 +288,7 @@
         };
 
         hideBtn.addEventListener("click", function (e) {
+            if (!isLocalDev) return;
             e.stopPropagation();
             panel.style.display = "none";
         });
