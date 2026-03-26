@@ -5,16 +5,21 @@
 class WorkshopSketchUI {
     constructor({
         debugStorageKey = 'mandalasWorkshop.debugDraw',
-        gridStorageKey = 'mandalasWorkshop.showMotifGrid'
+        gridStorageKey = 'mandalasWorkshop.showMotifGrid',
+        gridDivisionsStorageKey = 'mandalasWorkshop.polarGridDivisions'
     } = {}) {
         this.debugStorageKey = debugStorageKey;
         this.gridStorageKey = gridStorageKey;
+        this.gridDivisionsStorageKey = gridDivisionsStorageKey;
         this.debugDraw = this._loadDebugDraw();
         this.showMotifGrid = this._loadShowMotifGrid();
+        this.polarGridDivisions = this._loadPolarGridDivisions();
         this.canvasContainer = null;
         this.toolbar = null;
         this.debugToggleButton = null;
         this.gridToggleButton = null;
+        this.gridDivisionsContainer = null;
+        this.gridDivisionsInput = null;
         this.exportButton = null;
         this.canvas = null;
 
@@ -77,6 +82,40 @@ class WorkshopSketchUI {
         this.gridToggleButton.parent(this.toolbar);
         this.gridToggleButton.mousePressed(() => this.toggleShowMotifGrid());
 
+        // Grid divisions: label + number input
+        this.gridDivisionsContainer = createDiv();
+        this.gridDivisionsContainer.parent(this.toolbar);
+        this.gridDivisionsContainer.style('display', 'flex');
+        this.gridDivisionsContainer.style('align-items', 'center');
+        this.gridDivisionsContainer.style('gap', '6px');
+
+        const gridDivLabel = createSpan('Angular Divisions:');
+        gridDivLabel.parent(this.gridDivisionsContainer);
+        gridDivLabel.style('font-size', '14px');
+        gridDivLabel.style('font-family', 'system-ui, sans-serif');
+        gridDivLabel.style('color', '#1f2a26');
+        gridDivLabel.style('white-space', 'nowrap');
+
+        this.gridDivisionsInput = createInput(String(this.polarGridDivisions), 'number');
+        this.gridDivisionsInput.parent(this.gridDivisionsContainer);
+        this.gridDivisionsInput.attribute('min', '1');
+        this.gridDivisionsInput.attribute('max', '360');
+        this.gridDivisionsInput.attribute('step', '1');
+        this.gridDivisionsInput.style('width', '54px');
+        this.gridDivisionsInput.style('padding', '0.3rem 0.4rem');
+        this.gridDivisionsInput.style('border', '1px solid #7a8f86');
+        this.gridDivisionsInput.style('border-radius', '6px');
+        this.gridDivisionsInput.style('font-size', '14px');
+        this.gridDivisionsInput.style('font-family', 'system-ui, sans-serif');
+        this.gridDivisionsInput.style('color', '#1f2a26');
+        this.gridDivisionsInput.elt.addEventListener('change', () => {
+            const v = parseInt(this.gridDivisionsInput.value(), 10);
+            if (!isNaN(v) && v >= 1) {
+                this.polarGridDivisions = v;
+                this._savePolarGridDivisions();
+            }
+        });
+
         this.exportButton = createButton('Export PNG');
         this.exportButton.parent(this.toolbar);
         this.exportButton.mousePressed(() => this.exportPng());
@@ -86,6 +125,7 @@ class WorkshopSketchUI {
         this._styleToolbarButton(this.exportButton);
         this._updateDebugToggleLabel();
         this._updateGridToggleLabel();
+        this._updateGridDivisionsVisibility();
 
         this.canvas.parent(this.canvasContainer);
         return this.canvas;
@@ -112,6 +152,11 @@ class WorkshopSketchUI {
             globalThis.setShowMotifGridVisible(this.showMotifGrid);
         }
         this._updateGridToggleLabel();
+        this._updateGridDivisionsVisibility();
+    }
+
+    getPolarGridDivisions() {
+        return this.polarGridDivisions;
     }
 
     exportPng(filename = 'mandala') {
@@ -135,6 +180,16 @@ class WorkshopSketchUI {
         localStorage.setItem(this.gridStorageKey, String(this.showMotifGrid));
     }
 
+    _loadPolarGridDivisions() {
+        const raw = localStorage.getItem(this.gridDivisionsStorageKey);
+        const v = parseInt(raw, 10);
+        return (!isNaN(v) && v >= 1) ? v : 16;
+    }
+
+    _savePolarGridDivisions() {
+        localStorage.setItem(this.gridDivisionsStorageKey, String(this.polarGridDivisions));
+    }
+
     _updateDebugToggleLabel() {
         if (!this.debugToggleButton) return;
         this.debugToggleButton.html(this.debugDraw ? 'Disable Debug Draw' : 'Enable Debug Draw');
@@ -143,6 +198,11 @@ class WorkshopSketchUI {
     _updateGridToggleLabel() {
         if (!this.gridToggleButton) return;
         this.gridToggleButton.html(this.showMotifGrid ? 'Hide Grid' : 'Show Grid');
+    }
+
+    _updateGridDivisionsVisibility() {
+        if (!this.gridDivisionsContainer) return;
+        this.gridDivisionsContainer.style('display', this.showMotifGrid ? 'flex' : 'none');
     }
 
     _styleToolbarButton(button) {
