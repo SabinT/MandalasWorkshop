@@ -20,7 +20,7 @@ const UI = new WorkshopSketchUI();
 
 function setup() {
     createCanvas(CANVAS_SIZE, CANVAS_SIZE);
-    angleMode(RADIANS);
+    angleMode(DEGREES);
 }
 
 function draw() {
@@ -88,8 +88,8 @@ function motifLeaf() {
 function motifFeather() {
     // Arrowhead triangle at the outer edge
     mTriangle(-0.28, 0.45, 0.28, 0.45, 0, 0.92);
-    // Curved arc forming the quill stem
-    mArc(0, -0.5, 0.9, Math.PI * 0.36, Math.PI * 0.64);
+    // Curved arc forming the quill stem (angles in degrees)
+    mArc(0, -0.5, 0.9, 64.8, 115.2);
 }
 
 // ── Ring 3: Petal — mEllipse, mPath ──────────────────────────

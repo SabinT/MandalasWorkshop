@@ -100,11 +100,16 @@ function mPath(points) {
  * @param {number} cx          Centre x in motif space.
  * @param {number} cy          Centre y in motif space.
  * @param {number} r           Radius in motif space.
- * @param {number} startAngle  Start angle in radians.
- * @param {number} endAngle    End angle in radians.
+ * @param {number} startAngle  Start angle in the sketch's current angleMode.
+ * @param {number} endAngle    End angle in the sketch's current angleMode.
  */
 function mArc(cx, cy, r, startAngle, endAngle) {
-    _commands.push(new ArcCurve(cx, cy, r, startAngle, endAngle));
+    _commands.push(new ArcCurve(cx, cy, r, _toRadians(startAngle), _toRadians(endAngle)));
+}
+
+/** Convert an angle from the sketch's current angleMode to radians. */
+function _toRadians(a) {
+    return (angleMode() === DEGREES) ? a * (Math.PI / 180) : a;
 }
 
 /**
@@ -144,7 +149,7 @@ function mCurve(points) {
  */
 function ring({ shape, n, r1, r2 }) {
     const commands = captureMotif(shape);
-    const angleStep = TWO_PI / n;
+    const angleStep = (Math.PI * 2) / n;
 
     for (let i = 0; i < n; i++) {
         const aCenter = i * angleStep;
@@ -181,7 +186,7 @@ function captureMotif(shapeFn) {
 function mapToRing(x, y, aCenter, aStep, r1, r2) {
     const angle = aCenter + map(x, -1, 1, -0.5 * aStep, 0.5 * aStep);
     const radius = map(y, -1, 1, r1, r2);
-    return vec2(radius * cos(angle), radius * sin(angle));
+    return vec2(radius * Math.cos(angle), radius * Math.sin(angle));
 }
 
 /**
@@ -233,10 +238,10 @@ function drawPolarGrid(n, r1, r2) {
     circle(0, 0, r1 * 2);
     circle(0, 0, r2 * 2);
 
-    const angleStep = TWO_PI / n;
+    const angleStep = (Math.PI * 2) / n;
     for (let i = 0; i < n; i++) {
         const a = i * angleStep;
-        line(r1 * cos(a), r1 * sin(a), r2 * cos(a), r2 * sin(a));
+        line(r1 * Math.cos(a), r1 * Math.sin(a), r2 * Math.cos(a), r2 * Math.sin(a));
     }
 }
 
