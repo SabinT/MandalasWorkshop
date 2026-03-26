@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drawing Functions — Mandalas Workshop Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0e0e14;
+      --surface:   #16161f;
+      --border:    #2a2a3a;
+      --accent:    #c084fc;
+      --accent2:   #818cf8;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+      --tag-bg:    #1e1e2e;
+      --radius:    10px;
+      --gap:       1.25rem;
+    }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem 3rem;
+    }
+
+    /* ── nav / back button ── */
+    .top-nav {
+      width: 100%;
+      max-width: 860px;
+      margin-bottom: 1.75rem;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .back-btn:hover {
+      border-color: var(--accent2);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    /* ── header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .workshop-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      font-weight: 400;
+    }
+
+    /* ── content ── */
+    .content {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    /* ── section card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.5rem 1.75rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      background: #1a1f3a;
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    p {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    p + p { margin-top: 0.75rem; }
+
+    /* ── function signature ── */
+    .fn-sig {
+      display: block;
+      margin: 1rem 0;
+      padding: 0.75rem 1rem;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* ── param table ── */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+    }
+
+    .param-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .param-table td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    .param-table tr:last-child td { border-bottom: none; }
+
+    .param-name {
+      font-family: 'Courier New', monospace;
+      color: var(--accent2);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .param-type {
+      color: var(--muted);
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+    }
+
+    /* ── example block ── */
+    .example {
+      margin-top: 1.25rem;
+    }
+
+    .example-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      overflow-x: auto;
+      line-height: 1.55;
+    }
+
+    .kw  { color: #c084fc; }
+    .fn  { color: #818cf8; }
+    .cm  { color: #4a5568; }
+    .nm  { color: #68d391; }
+
+    /* ── tip ── */
+    .tip {
+      margin-top: 1rem;
+      padding: 0.65rem 0.9rem;
+      background: #111827;
+      border-left: 3px solid var(--accent2);
+      border-radius: 4px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    kbd, code {
+      font-family: 'Courier New', monospace;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── footer ── */
+    footer {
+      margin-top: 2.25rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="back-btn" href="index.html">← Back to Home</a>
+  </nav>
+
+  <header>
+    <p class="workshop-label">Reference</p>
+    <h1>Drawing Functions</h1>
+    <p class="subtitle">Motif-space drawing commands for use inside motif functions</p>
+  </header>
+
+  <div class="content">
+
+    <!-- ── Overview ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">✏️</div>
+        <span class="card-title">Overview</span>
+      </div>
+      <p>
+        All drawing inside a motif function is done using the <strong>m-prefixed
+        drawing commands</strong> listed below. These commands do <em>not</em> draw
+        immediately — they <strong>capture</strong> a description of the shape, which
+        is then replayed once per ring segment (correctly mapped into polar space)
+        when you call <code>ring()</code>.
+      </p>
+      <p>
+        All coordinates are in <strong>easy space</strong>: x ∈ [−1, 1] and
+        y ∈ [−1, 1]. Shapes that extend beyond [−1, 1] will be drawn outside the
+        ring segment boundary — this is intentional and can produce interesting
+        overlapping effects.
+      </p>
+      <p>
+        Stroke and fill set <em>before</em> calling <code>ring()</code> are applied
+        to every repeated copy of the motif.
+      </p>
+    </div>
+
+    <!-- ── mLine ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📏</div>
+        <span class="card-title">mLine — Straight Line</span>
+      </div>
+      <p>Draws a straight line between two points in motif space (stroke only).</p>
+      <code class="fn-sig">mLine(x1, y1, x2, y2)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">x1, y1</td><td class="param-type">number</td><td>Start point in motif space.</td></tr>
+          <tr><td class="param-name">x2, y2</td><td class="param-type">number</td><td>End point in motif space.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example</p>
+        <pre><span class="kw">function</span> <span class="fn">motifCross</span>() {
+  <span class="fn">mLine</span>(-<span class="nm">1</span>, <span class="nm">0</span>,  <span class="nm">1</span>, <span class="nm">0</span>);  <span class="cm">// horizontal bar</span>
+  <span class="fn">mLine</span>( <span class="nm">0</span>, -<span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">1</span>);  <span class="cm">// vertical bar</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mBezier ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">〰️</div>
+        <span class="card-title">mBezier — Cubic Bézier Curve</span>
+      </div>
+      <p>Draws a cubic Bézier curve in motif space (stroke only). Arguments match p5.js's <code>bezier()</code> order: anchor 1, control 1, control 2, anchor 2.</p>
+      <code class="fn-sig">mBezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">x1, y1</td><td class="param-type">number</td><td>Start anchor point.</td></tr>
+          <tr><td class="param-name">cx1, cy1</td><td class="param-type">number</td><td>First control point (influences the curve near the start).</td></tr>
+          <tr><td class="param-name">cx2, cy2</td><td class="param-type">number</td><td>Second control point (influences the curve near the end).</td></tr>
+          <tr><td class="param-name">x2, y2</td><td class="param-type">number</td><td>End anchor point.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — a petal-shaped curve</p>
+        <pre><span class="kw">function</span> <span class="fn">motifLeaf</span>() {
+  <span class="cm">// Left edge of petal</span>
+  <span class="fn">mBezier</span>(<span class="nm">0</span>, -<span class="nm">1</span>,  -<span class="nm">0.8</span>, -<span class="nm">0.2</span>,  -<span class="nm">0.6</span>, <span class="nm">0.8</span>,  <span class="nm">0</span>, <span class="nm">1</span>);
+  <span class="cm">// Right edge of petal</span>
+  <span class="fn">mBezier</span>(<span class="nm">0</span>, -<span class="nm">1</span>,   <span class="nm">0.8</span>, -<span class="nm">0.2</span>,   <span class="nm">0.6</span>, <span class="nm">0.8</span>,  <span class="nm">0</span>, <span class="nm">1</span>);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mCircle ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">⭕</div>
+        <span class="card-title">mCircle — Circle</span>
+      </div>
+      <p>
+        Draws a filled circle in motif space. The circle is internally approximated
+        with many vertices so it deforms correctly when mapped into polar (ring) space.
+      </p>
+      <code class="fn-sig">mCircle(x, y, r)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">x, y</td><td class="param-type">number</td><td>Centre of the circle in motif space.</td></tr>
+          <tr><td class="param-name">r</td><td class="param-type">number</td><td>Radius in motif-space units.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — dot at the tip of each segment</p>
+        <pre><span class="kw">function</span> <span class="fn">motifDot</span>() {
+  <span class="fn">mCircle</span>(<span class="nm">0</span>, <span class="nm">0.7</span>, <span class="nm">0.15</span>);  <span class="cm">// near the outer edge</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mEllipse ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🥚</div>
+        <span class="card-title">mEllipse — Ellipse</span>
+      </div>
+      <p>Draws a filled ellipse in motif space. Like <code>mCircle</code> but with independent horizontal and vertical radii.</p>
+      <code class="fn-sig">mEllipse(cx, cy, rx, ry)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">cx, cy</td><td class="param-type">number</td><td>Centre of the ellipse in motif space.</td></tr>
+          <tr><td class="param-name">rx</td><td class="param-type">number</td><td>Horizontal radius.</td></tr>
+          <tr><td class="param-name">ry</td><td class="param-type">number</td><td>Vertical radius.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example</p>
+        <pre><span class="kw">function</span> <span class="fn">motifOval</span>() {
+  <span class="fn">mEllipse</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.3</span>, <span class="nm">0.6</span>);  <span class="cm">// tall oval centred in the segment</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mArc ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🌙</div>
+        <span class="card-title">mArc — Circular Arc</span>
+      </div>
+      <p>Draws an open circular arc (stroke only) in motif space.</p>
+      <code class="fn-sig">mArc(cx, cy, r, startAngle, endAngle)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">cx, cy</td><td class="param-type">number</td><td>Centre of the arc in motif space.</td></tr>
+          <tr><td class="param-name">r</td><td class="param-type">number</td><td>Radius in motif-space units.</td></tr>
+          <tr><td class="param-name">startAngle</td><td class="param-type">number (radians)</td><td>Starting angle (0 = right, increasing clockwise).</td></tr>
+          <tr><td class="param-name">endAngle</td><td class="param-type">number (radians)</td><td>Ending angle.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — a smile-shaped arc</p>
+        <pre><span class="kw">function</span> <span class="fn">motifSmile</span>() {
+  <span class="fn">mArc</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0.5</span>, <span class="nm">0</span>, Math.PI);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mTriangle ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🔺</div>
+        <span class="card-title">mTriangle — Triangle</span>
+      </div>
+      <p>Draws a closed, filled triangle in motif space. Specify the three vertices in order (e.g. clockwise).</p>
+      <code class="fn-sig">mTriangle(x1, y1, x2, y2, x3, y3)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">x1, y1</td><td class="param-type">number</td><td>First vertex.</td></tr>
+          <tr><td class="param-name">x2, y2</td><td class="param-type">number</td><td>Second vertex.</td></tr>
+          <tr><td class="param-name">x3, y3</td><td class="param-type">number</td><td>Third vertex.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — upward-pointing triangle</p>
+        <pre><span class="kw">function</span> <span class="fn">motifArrow</span>() {
+  <span class="fn">mTriangle</span>(<span class="nm">0</span>, -<span class="nm">0.8</span>,  -<span class="nm">0.4</span>, <span class="nm">0.4</span>,  <span class="nm">0.4</span>, <span class="nm">0.4</span>);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mQuad ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🔷</div>
+        <span class="card-title">mQuad — Quadrilateral</span>
+      </div>
+      <p>Draws a closed, filled quadrilateral in motif space. Specify all four vertices in order.</p>
+      <code class="fn-sig">mQuad(x1, y1, x2, y2, x3, y3, x4, y4)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">x1, y1</td><td class="param-type">number</td><td>First vertex.</td></tr>
+          <tr><td class="param-name">x2, y2</td><td class="param-type">number</td><td>Second vertex.</td></tr>
+          <tr><td class="param-name">x3, y3</td><td class="param-type">number</td><td>Third vertex.</td></tr>
+          <tr><td class="param-name">x4, y4</td><td class="param-type">number</td><td>Fourth vertex.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — a diamond shape</p>
+        <pre><span class="kw">function</span> <span class="fn">motifDiamond</span>() {
+  <span class="fn">mQuad</span>(<span class="nm">0</span>, -<span class="nm">0.9</span>,  <span class="nm">0.4</span>, <span class="nm">0</span>,  <span class="nm">0</span>, <span class="nm">0.9</span>,  -<span class="nm">0.4</span>, <span class="nm">0</span>);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mShape ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🔶</div>
+        <span class="card-title">mShape — Closed Polygon</span>
+      </div>
+      <p>Draws a closed, filled polygon from an array of <code>vec2</code> points in motif space.</p>
+      <code class="fn-sig">mShape(points)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">points</td><td class="param-type">Array&lt;{x, y}&gt;</td><td>Array of vertices in motif space. Use <code>vec2(x, y)</code> to create each point.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — a pentagon</p>
+        <pre><span class="kw">function</span> <span class="fn">motifPentagon</span>() {
+  <span class="kw">const</span> pts = [];
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="nm">0</span>; i &lt; <span class="nm">5</span>; i++) {
+    <span class="kw">const</span> a = (i / <span class="nm">5</span>) * TWO_PI - HALF_PI;
+    pts.push(<span class="fn">vec2</span>(cos(a) * <span class="nm">0.6</span>, sin(a) * <span class="nm">0.6</span>));
+  }
+  <span class="fn">mShape</span>(pts);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mPath ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🖊️</div>
+        <span class="card-title">mPath — Open Polyline</span>
+      </div>
+      <p>Draws an open polyline (stroke only) through an array of <code>vec2</code> points in motif space.</p>
+      <code class="fn-sig">mPath(points)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">points</td><td class="param-type">Array&lt;{x, y}&gt;</td><td>Array of vertices in motif space. Use <code>vec2(x, y)</code> to create each point.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — a zigzag path</p>
+        <pre><span class="kw">function</span> <span class="fn">motifZigzag</span>() {
+  <span class="fn">mPath</span>([
+    <span class="fn">vec2</span>(-<span class="nm">1</span>,  <span class="nm">0</span>),
+    <span class="fn">vec2</span>(-<span class="nm">0.5</span>, -<span class="nm">0.5</span>),
+    <span class="fn">vec2</span>( <span class="nm">0</span>,   <span class="nm">0.5</span>),
+    <span class="fn">vec2</span>( <span class="nm">0.5</span>, -<span class="nm">0.5</span>),
+    <span class="fn">vec2</span>( <span class="nm">1</span>,   <span class="nm">0</span>),
+  ]);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── mCurve ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🌊</div>
+        <span class="card-title">mCurve — Smooth Spline</span>
+      </div>
+      <p>Draws a smooth Catmull-Rom spline (stroke only) through an array of <code>vec2</code> control points in motif space. The curve passes through every point.</p>
+      <code class="fn-sig">mCurve(points)</code>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="param-name">points</td><td class="param-type">Array&lt;{x, y}&gt;</td><td>Control points in motif space. Use <code>vec2(x, y)</code> to create each point. At least 2 points required.</td></tr>
+        </tbody>
+      </table>
+      <div class="example">
+        <p class="example-label">Example — a flowing wave</p>
+        <pre><span class="kw">function</span> <span class="fn">motifWave</span>() {
+  <span class="fn">mCurve</span>([
+    <span class="fn">vec2</span>(-<span class="nm">1</span>,  <span class="nm">0</span>),
+    <span class="fn">vec2</span>(-<span class="nm">0.5</span>,  <span class="nm">0.5</span>),
+    <span class="fn">vec2</span>( <span class="nm">0</span>,  -<span class="nm">0.5</span>),
+    <span class="fn">vec2</span>( <span class="nm">0.5</span>,  <span class="nm">0.5</span>),
+    <span class="fn">vec2</span>( <span class="nm">1</span>,   <span class="nm">0</span>),
+  ]);
+}</pre>
+      </div>
+    </div>
+
+    <!-- ── Stroke & Fill ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🎨</div>
+        <span class="card-title">Stroke &amp; Fill</span>
+      </div>
+      <p>
+        You can use standard p5.js <code>stroke()</code>, <code>fill()</code>,
+        <code>noStroke()</code>, <code>noFill()</code>, and
+        <code>strokeWeight()</code> calls <strong>before</strong> calling
+        <code>ring()</code> to control how the motif is drawn.
+      </p>
+      <p>
+        Closed shapes (<code>mCircle</code>, <code>mEllipse</code>,
+        <code>mTriangle</code>, <code>mQuad</code>, <code>mShape</code>) respect
+        both stroke and fill. Open shapes (<code>mLine</code>, <code>mBezier</code>,
+        <code>mArc</code>, <code>mPath</code>, <code>mCurve</code>) are stroke only.
+      </p>
+      <div class="example">
+        <p class="example-label">Example</p>
+        <pre><span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="nm">20</span>);
+  <span class="fn">translate</span>(width / <span class="nm">2</span>, height / <span class="nm">2</span>);
+
+  stroke(<span class="nm">200</span>, <span class="nm">100</span>, <span class="nm">255</span>);   <span class="cm">// purple stroke</span>
+  fill(<span class="nm">100</span>, <span class="nm">50</span>, <span class="nm">150</span>, <span class="nm">180</span>);  <span class="cm">// semi-transparent fill</span>
+  strokeWeight(<span class="nm">1.5</span>);
+  <span class="fn">ring</span>({ shape: motifLeaf, n: <span class="nm">12</span>, r1: <span class="nm">80</span>, r2: <span class="nm">160</span> });
+}</pre>
+      </div>
+
+      <div class="tip">
+        💡 Call <code>push()</code> and <code>pop()</code> around each <code>ring()</code>
+        call if you want to isolate stroke/fill settings for different rings.
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Drawing Mandalas with Code · p5.js Workshop</footer>
+
+</body>
+</html>

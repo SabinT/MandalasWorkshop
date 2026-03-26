@@ -42,6 +42,10 @@ MandalasWorkshop/
 │   │                      mapToRing, drawCommandsInRing,
 │   │                      captureMotif, drawMappedCircle (internals)
 │   └── p5.min-1.11.11.js  p5.js library (local, minified).
+├── docs/
+│   ├── index.html       Workshop landing/setup page with a Docs toolbar.
+│   ├── Mandala.html     Reference: ring() function and easy-space coordinate system.
+│   └── Motif.html       Reference: all motif-space drawing functions (mLine, etc.).
 ├── .vscode/
 │   └── extensions.json  Recommends the "Live Server" extension (ritwickdey).
 ├── agents.md            This file.
@@ -88,6 +92,27 @@ p5.js vectors via `.x` / `.y` property access.
 3. Right-click `index.html` → **Open with Live Server**.
 4. Edit `sketch.js` (specifically `motifCustom`) and save — the browser
    refreshes automatically.
+
+---
+
+## Documentation
+
+The `docs/` folder contains HTML reference pages for the workshop:
+
+- `docs/index.html` — landing/setup page with a **Docs toolbar** linking to the reference pages.
+- `docs/Motif.html` — reference for all motif-space drawing functions (`mLine`, `mBezier`,
+  `mCircle`, `mEllipse`, `mArc`, `mTriangle`, `mQuad`, `mShape`, `mPath`, `mCurve`).
+- `docs/Mandala.html` — reference for the `ring()` function and the easy-space coordinate system.
+
+**Keep documentation in sync with the code.**  Whenever you:
+- Add, remove, or change a **motif-space drawing function** (`mLine`, `mBezier`, `mCircle`,
+  `mTriangle`, `mQuad`, `mShape`, `mPath`, `mArc`, `mEllipse`, `mCurve`, or any future
+  `mXxx` function in `library/mandala.js`), update **`docs/Motif.html`** to reflect the
+  change (add / remove / edit the corresponding card).
+- Add, remove, or change **parameters of `ring()`** (e.g. `shape`, `n`, `r1`, `r2`) in
+  `library/mandala.js`, update **`docs/Mandala.html`** to reflect the change.
+- Add, remove, or change the **docs toolbar buttons** in `docs/index.html` when new doc
+  pages are added or removed.
 
 ---
 
