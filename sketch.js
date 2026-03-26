@@ -17,7 +17,7 @@
 // You can use grayscale numbers like 255 or hex colors like "#ffffff".
 const MANDALA_BG = "#accbbc";
 const CANVAS_SIZE = 1000;
-const DESIGN_SPACE = 100;
+const DESIGN_SPACE = 10;
 const UI = new WorkshopSketchUI();
 
 function setup() {
