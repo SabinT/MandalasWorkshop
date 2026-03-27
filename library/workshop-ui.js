@@ -209,7 +209,7 @@ class WorkshopSketchUI {
     _loadPolarGridDivisions() {
         const raw = localStorage.getItem(this.gridDivisionsStorageKey);
         const v = parseInt(raw, 10);
-        return (!isNaN(v) && v >= 1) ? v : 16;
+        return (!isNaN(v) && v >= 1) ? v : 24;
     }
 
     _savePolarGridDivisions() {
