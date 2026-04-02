@@ -630,6 +630,166 @@
       </div>
     </div>
 
+    <!-- ── p5.js Functions Inside Motif Functions ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">⚠️</div>
+        <span class="card-title">p5.js Functions Inside Motif Functions</span>
+      </div>
+      <p>
+        Motif functions work by <em>capturing</em> geometry commands (like
+        <code>mLine</code>, <code>mBezier</code>, etc.) and then replaying them
+        once per ring segment in polar space. Because of this, not all p5.js
+        functions behave as you might expect when called inside a motif function.
+      </p>
+
+      <p class="section-heading">✅ What works</p>
+
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Function(s)</th>
+            <th>Behaviour inside a motif</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-name">random(), noise()</td>
+            <td>
+              Work correctly — each ring segment calls the motif function
+              independently, so every repetition gets its own random values.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">translate(), rotate(), scale()</td>
+            <td>
+              Work correctly. The library intercepts these calls and applies them
+              as part of the motif-space transform so the geometry is shifted,
+              rotated, or scaled before being mapped to polar space.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">push(), pop()</td>
+            <td>
+              Work correctly for geometry transforms (translate / rotate / scale).
+              Push and pop save and restore the motif-space transform matrix.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">resetMatrix()</td>
+            <td>
+              Resets the motif-space transform to the identity matrix.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">sin(), cos(), map(), lerp(), dist(), …</td>
+            <td>
+              All pure math / utility functions work normally — they just return
+              numbers and have no drawing side-effects.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">frameCount, millis(), …</td>
+            <td>
+              Readable and usable for time-based animation of geometry (e.g.,
+              oscillating a coordinate with <code>sin(frameCount * 0.05)</code>).
+              Each segment captures independently, so the value is consistent
+              within a single frame.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="section-heading">❌ What does NOT work</p>
+
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Function(s)</th>
+            <th>Why it doesn't work</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-name">stroke(), fill(), noStroke(), noFill(), strokeWeight()</td>
+            <td>
+              These set the active p5.js drawing style, but motif functions only
+              <em>capture</em> geometry — they don't draw anything yet. By the time
+              the geometry is actually drawn (inside <code>ring()</code>), the
+              style calls made inside the motif function are long gone.
+              <br /><br />
+              <strong>Solution:</strong> Call style functions <em>before</em>
+              <code>ring()</code>, not inside the motif. Use multiple
+              <code>ring()</code> calls with different styles to draw the same
+              motif multiple times with different colours.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">push() / pop() for styles</td>
+            <td>
+              <code>push()</code> and <code>pop()</code> are intercepted to manage
+              the geometry transform stack, so they do <em>not</em> save and restore
+              stroke / fill / strokeWeight inside a motif function.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">line(), ellipse(), rect(), bezier(), …</td>
+            <td>
+              Raw p5.js drawing functions draw directly to the canvas in screen
+              space. They bypass the polar mapping, so they will not appear in the
+              correct ring position. Use the <code>m</code>-prefixed equivalents
+              (<code>mLine</code>, <code>mEllipse</code>, <code>mBezier</code>, …) instead.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">background()</td>
+            <td>
+              Calling <code>background()</code> inside a motif would clear the
+              entire canvas each time the motif is captured — once per segment per
+              frame. Call it only at the top of <code>draw()</code>.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">text(), textSize(), textAlign()</td>
+            <td>
+              <code>text()</code> draws directly to the canvas in screen space and
+              is not captured. It will appear at the raw (untransformed) canvas
+              coordinates rather than inside the ring.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">image(), loadImage()</td>
+            <td>
+              Images are not captured by the motif system and cannot be mapped
+              into polar space.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="example">
+        <p class="example-label">Example — using random() inside a motif</p>
+        <pre><span class="kw">function</span> <span class="fn">motifRandom</span>() {
+  <span class="cm">// Each ring segment gets an independently randomized line length.</span>
+  <span class="kw">const</span> len = <span class="fn">random</span>(<span class="nm">4</span>, <span class="nm">10</span>);
+  <span class="fn">mLine</span>(<span class="nm">0</span>, -len, <span class="nm">0</span>, len);
+}
+
+<span class="cm">// In draw():</span>
+<span class="fn">ring</span>({ shape: motifRandom, n: <span class="nm">24</span>, r1: <span class="nm">150</span>, r2: <span class="nm">200</span> });</pre>
+      </div>
+
+      <div class="example">
+        <p class="example-label">Example — per-ring stroke colour (correct pattern)</p>
+        <pre><span class="cm">// Set style BEFORE ring(), not inside the motif.</span>
+stroke(<span class="nm">255</span>, <span class="nm">100</span>, <span class="nm">50</span>);
+<span class="fn">ring</span>({ shape: yourMotif, n: <span class="nm">12</span>, r1: <span class="nm">100</span>, r2: <span class="nm">180</span> });
+
+stroke(<span class="nm">100</span>, <span class="nm">200</span>, <span class="nm">255</span>);
+<span class="fn">ring</span>({ shape: yourMotif, n: <span class="nm">12</span>, r1: <span class="nm">180</span>, r2: <span class="nm">260</span> });</pre>
+      </div>
+    </div>
+
   </div>
 
   <footer>Drawing Mandalas with Code · p5.js Workshop</footer>

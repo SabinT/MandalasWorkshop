@@ -202,7 +202,6 @@ function mBox(x, y, w, h, divisions) {
  *                                         Maximum useful value is 360 / n.
  */
 function ring({ shape, n, r1, r2, offset = 0, gapDegrees = 0 }) {
-    const commands = captureMotif(shape);
     const angleStep = (Math.PI * 2) / n;
     const angleOffset = offset * angleStep;
     const maxGapDegrees = 360 / n;
@@ -211,6 +210,9 @@ function ring({ shape, n, r1, r2, offset = 0, gapDegrees = 0 }) {
 
     for (let i = 0; i < n; i++) {
         const aCenter = (i + 0.5) * angleStep + angleOffset;
+        // Capture fresh per segment so that calls like random() and noise()
+        // inside the motif function produce independent values each repetition.
+        const commands = captureMotif(shape);
         drawCommandsInRing(commands, aCenter, occupiedAngleStep, r1, r2);
     }
 }
