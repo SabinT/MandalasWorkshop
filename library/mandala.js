@@ -192,7 +192,16 @@ function mBox(x, y, w, h, divisions) {
  * Draw a motif function n times, evenly distributed around a ring.
  *
  * @param {object} opts
- * @param {function} opts.shape  Motif function (calls mLine / mBezier / mCircle).
+ * @param {function} opts.shape  Motif function.  Called once per segment with an optional
+ *                               context argument: `function myMotif(ctx) { … }`.
+ *                               Context properties:
+ *                                 - `ctx.index` {number}  Zero-based segment index (0 … n-1).
+ *                                 - `ctx.a1`    {number}  Start angle of the segment in degrees.
+ *                                 - `ctx.a2`    {number}  End angle of the segment in degrees.
+ *                                 - `ctx.r1`    {number}  Inner radius of the ring in pixels.
+ *                                 - `ctx.r2`    {number}  Outer radius of the ring in pixels.
+ *                               Motif functions that ignore context need no parameters:
+ *                               `function myMotif() { … }` is equally valid.
  * @param {number}   opts.n      Number of repetitions.
  * @param {number}   opts.r1     Inner radius in pixels.
  * @param {number}   opts.r2     Outer radius in pixels.
@@ -207,12 +216,21 @@ function ring({ shape, n, r1, r2, offset = 0, gapDegrees = 0 }) {
     const maxGapDegrees = 360 / n;
     const clampedGapDegrees = Math.max(0, Math.min(gapDegrees, maxGapDegrees));
     const occupiedAngleStep = angleStep - (clampedGapDegrees * (Math.PI / 180));
+    const toDeg = 180 / Math.PI;
 
     for (let i = 0; i < n; i++) {
         const aCenter = (i + 0.5) * angleStep + angleOffset;
+        // Build context available to the motif function.
+        const ctx = {
+            index: i,
+            a1: (aCenter - occupiedAngleStep / 2) * toDeg,
+            a2: (aCenter + occupiedAngleStep / 2) * toDeg,
+            r1: r1,
+            r2: r2,
+        };
         // Capture fresh per segment so that calls like random() and noise()
         // inside the motif function produce independent values each repetition.
-        const commands = captureMotif(shape);
+        const commands = captureMotif(shape, ctx);
         drawCommandsInRing(commands, aCenter, occupiedAngleStep, r1, r2);
     }
 }
@@ -224,11 +242,12 @@ function ring({ shape, n, r1, r2, offset = 0, gapDegrees = 0 }) {
 /**
  * Execute shapeFn() while capturing its drawing commands.
  * @param {function} shapeFn
+ * @param {object}   [ctx]  Optional context object passed to the motif function.
  * @returns {Array<object>} List of recorded commands.
  */
-function captureMotif(shapeFn) {
+function captureMotif(shapeFn, ctx) {
     _commands = [];
-    _captureWithMotifTransforms(shapeFn);
+    _captureWithMotifTransforms(shapeFn, ctx);
     return _commands;
 }
 
@@ -259,7 +278,7 @@ function DotCommand(x, y, r) {
 }
 
 /** Execute motif code with local transform shims for translate/rotate/scale/push/pop/resetMatrix. */
-function _captureWithMotifTransforms(shapeFn) {
+function _captureWithMotifTransforms(shapeFn, ctx) {
     _isCapturingMotif = true;
     _motifMatrix = _mfIdentity();
     _motifStack = [];
@@ -294,7 +313,7 @@ function _captureWithMotifTransforms(shapeFn) {
     };
 
     try {
-        shapeFn();
+        shapeFn(ctx);
     } finally {
         globalThis.translate = prevTranslate;
         globalThis.rotate = prevRotate;

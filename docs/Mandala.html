@@ -329,8 +329,44 @@
             <td>
               A <strong>motif function</strong> that calls motif drawing commands
               (<code>mLine</code>, <code>mBezier</code>, <code>mCircle</code>, etc.).
-              It will be called once to capture the drawing commands, which are then
-              replayed for each repetition around the ring.
+              It is called once per segment and may optionally accept a <strong>context
+              object</strong> as its first argument:
+              <br/><br/>
+              <code>function myMotif(ctx) { … }</code>
+              <br/><br/>
+              The context object has the following properties:
+              <table class="param-table" style="margin-top:0.5rem">
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="param-name">ctx.index</td>
+                    <td class="param-type">number</td>
+                    <td>Zero-based index of the current segment (0 … n-1).</td>
+                  </tr>
+                  <tr>
+                    <td class="param-name">ctx.a1</td>
+                    <td class="param-type">number (degrees)</td>
+                    <td>Start angle of the current segment in degrees.</td>
+                  </tr>
+                  <tr>
+                    <td class="param-name">ctx.a2</td>
+                    <td class="param-type">number (degrees)</td>
+                    <td>End angle of the current segment in degrees.</td>
+                  </tr>
+                  <tr>
+                    <td class="param-name">ctx.r1</td>
+                    <td class="param-type">number (pixels)</td>
+                    <td>Inner radius of the ring in pixels.</td>
+                  </tr>
+                  <tr>
+                    <td class="param-name">ctx.r2</td>
+                    <td class="param-type">number (pixels)</td>
+                    <td>Outer radius of the ring in pixels.</td>
+                  </tr>
+                </tbody>
+              </table>
+              Motif functions that do not need this information can omit the parameter:
+              <code>function myMotif() { … }</code> is equally valid.
             </td>
           </tr>
           <tr>
@@ -394,7 +430,19 @@
 <span class="fn">ring</span>({ <span class="kw">shape</span>: myMotif, <span class="kw">n</span>: <span class="nm">12</span>, <span class="kw">r1</span>: <span class="nm">160</span>, <span class="kw">r2</span>: <span class="nm">240</span>, <span class="kw">offset</span>: <span class="nm">0.5</span> });
 
 <span class="cm">// Add a 5° gap between each motif.</span>
-<span class="fn">ring</span>({ <span class="kw">shape</span>: myMotif, <span class="kw">n</span>: <span class="nm">12</span>, <span class="kw">r1</span>: <span class="nm">80</span>, <span class="kw">r2</span>: <span class="nm">160</span>, <span class="kw">gapDegrees</span>: <span class="nm">5</span> });</pre>
+<span class="fn">ring</span>({ <span class="kw">shape</span>: myMotif, <span class="kw">n</span>: <span class="nm">12</span>, <span class="kw">r1</span>: <span class="nm">80</span>, <span class="kw">r2</span>: <span class="nm">160</span>, <span class="kw">gapDegrees</span>: <span class="nm">5</span> });
+
+<span class="cm">// Use segment context to vary the motif per repetition.</span>
+<span class="kw">function</span> <span class="fn">myMotif</span>(ctx) {
+  <span class="cm">// ctx.index  — 0-based segment index</span>
+  <span class="cm">// ctx.a1, ctx.a2  — start/end angle of this segment (degrees)</span>
+  <span class="cm">// ctx.r1, ctx.r2  — inner/outer radius of the ring (pixels)</span>
+  <span class="kw">if</span> (ctx.index % <span class="nm">2</span> === <span class="nm">0</span>) {
+    <span class="fn">mTriangle</span>(-<span class="nm">10</span>, <span class="nm">10</span>, <span class="nm">0</span>, -<span class="nm">10</span>, <span class="nm">10</span>, <span class="nm">10</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">mCircle</span>(<span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">8</span>);
+  }
+}</pre>
       </div>
 
       <div class="tip">
